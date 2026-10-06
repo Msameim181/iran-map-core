@@ -60,7 +60,10 @@ export const getLabelMetrics = (mapScale: number) => ({
   capitalLabel: { fontSize: 10 * mapScale, strokeWidth: 1.25 * mapScale },
 })
 
-/** Geometry of one capital marker: province capitals are diamonds (25% larger), county centers are circles. */
+/**
+ * Geometry of one capital marker: province capitals are diamonds (25% larger), county centers are circles. The
+ * minimum hit and center radii scale with `mapScale` too, so focused views keep the same on-screen proportions.
+ */
 export const getCapitalMarkerGeometry = (
   capital: Pick<IranMapCapital, 'areaType'>,
   markerSize: number,
@@ -71,13 +74,13 @@ export const getCapitalMarkerGeometry = (
   return {
     shape: isProvince ? ('diamond' as const) : ('circle' as const),
     size,
-    hitRadius: Math.max(9, size * 2),
+    hitRadius: Math.max(9 * mapScale, size * 2),
     haloRadius: size * 1.75,
     /** Circle radius for county markers. */
     coreRadius: size,
     /** SVG path for province (diamond) markers. */
     diamondPath: `M0 ${-size * 1.35} L${size * 1.35} 0 L0 ${size * 1.35} L${-size * 1.35} 0 Z`,
-    centerRadius: Math.max(1.1, size * 0.28),
+    centerRadius: Math.max(1.1 * mapScale, size * 0.28),
     label: { x: size * 2.2, y: -size * 1.5 },
   }
 }

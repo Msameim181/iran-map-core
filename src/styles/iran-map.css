@@ -30,6 +30,9 @@
 
 .iran-map-wrapper .iran-map-area:focus-visible {
   filter: brightness(0.92);
+  /* A clear keyboard focus ring; non-scaling-stroke keeps it 2px at any zoom. */
+  stroke: #f2c15a;
+  stroke-width: 2px;
 }
 
 .iran-map-water-layer,

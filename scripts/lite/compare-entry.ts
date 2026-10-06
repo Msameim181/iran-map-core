@@ -104,13 +104,13 @@ export const renderSvg = (catalogs: IranMapCatalogs, options: RenderOptions) => 
     }
   }
   for (const capital of model.capitals) {
-    const g = getCapitalMarkerGeometry(capital, iranMapDefaults.capitalMarkerSize, model.mapScale)
+    const g = getCapitalMarkerGeometry(capital, iranMapDefaults.capitalMarkerSize, scale)
     parts.push(
       `<g transform="translate(${capital.x} ${capital.y})" pointer-events="none"><circle r="${g.haloRadius}" fill="rgba(255,255,255,.92)"/>${
         g.shape === 'diamond'
           ? `<path d="${g.diamondPath}" fill="${iranMapDefaults.capitalMarkerColor}"/>`
           : `<circle r="${g.coreRadius}" fill="${iranMapDefaults.capitalMarkerColor}"/>`
-      }</g>`,
+      }<circle r="${g.centerRadius}" fill="#fff"/></g>`,
     )
   }
   if (options.overlayId && !options.defineOverlay) {

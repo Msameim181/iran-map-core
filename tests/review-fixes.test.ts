@@ -142,3 +142,13 @@ describe('tooltip ids and the lean entry', () => {
     expect(lean.provinceCatalogs.counties).toBeUndefined()
   })
 })
+
+describe('styles', () => {
+  it('draws a visible focus ring on map areas, like islands and capitals', async () => {
+    const { readFileSync } = await import('node:fs')
+    const css = readFileSync(new URL('../src/styles/iran-map.css', import.meta.url), 'utf8')
+    const rule = css.match(/\.iran-map-wrapper \.iran-map-area:focus-visible \{[^}]*\}/g)?.join('\n') ?? ''
+    expect(rule).toContain('stroke: #f2c15a')
+    expect(rule).toContain('stroke-width: 2px')
+  })
+})

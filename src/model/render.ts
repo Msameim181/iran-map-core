@@ -3,6 +3,15 @@ import type { IranMapCapital, IranMapWaterBody, RenderableMapArea, RenderableMap
 /** Element id shared by every `data-tooltip-id` and tooltip host. */
 export const MAP_TOOLTIP_ID = 'iran-map-tooltip'
 
+/**
+ * Tooltip element id for one map instance. Without an instance id it is the shared default {@link MAP_TOOLTIP_ID};
+ * with one (for example a per-component unique id) several maps on a page each get their own tooltip.
+ */
+export const getTooltipId = (instanceId?: string) => {
+  const id = instanceId?.trim().replace(/\s+/g, '-')
+  return id ? `${MAP_TOOLTIP_ID}-${id}` : MAP_TOOLTIP_ID
+}
+
 /** Class names of the interactive SVG elements (see styles.css). */
 export const MAP_CLASS_NAMES = {
   wrapper: 'iran-map-wrapper',

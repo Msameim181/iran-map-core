@@ -56,6 +56,7 @@ export {
   getLabelMetrics,
   getLabeledWaterBodies,
   getProvinceLabelAreas,
+  getTooltipId,
   isActivationKey,
 } from './model/render.js'
 export { NO_PROVINCE_SELECTION, getDeselectProvince, resolveAreaSelection } from './model/selection.js'

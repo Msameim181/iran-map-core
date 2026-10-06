@@ -7,6 +7,7 @@ import { provinceCapitalMarkers } from './data/provinceCapitals.js'
 import { iranWaterBodies } from './data/water.js'
 
 export * from './index.js'
+export { provinceCatalogs } from './lean.js'
 export {
   countyBoundaries,
   countyCapitalMarkers,
@@ -24,10 +25,4 @@ export const fullCatalogs: IranMapCatalogs = {
   waterBodies: iranWaterBodies,
   provinceCapitals: provinceCapitalMarkers,
   countyCapitals: countyCapitalMarkers,
-}
-
-/** Province polygons and province capitals only: the leanest useful set. */
-export const provinceCatalogs: IranMapCatalogs = {
-  provinces: provinceBoundaries,
-  provinceCapitals: provinceCapitalMarkers,
 }

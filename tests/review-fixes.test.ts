@@ -121,3 +121,24 @@ describe('optional data', () => {
     expect(findArea(buildMapModel({ data: null }, catalogs), 'province', 'tehran')?.value).toBeUndefined()
   })
 })
+
+describe('tooltip ids and the lean entry', () => {
+  it('derives a per-instance tooltip id and keeps the shared default', async () => {
+    const { getTooltipId, MAP_TOOLTIP_ID } = await import('../src/index')
+    expect(MAP_TOOLTIP_ID).toBe('iran-map-tooltip')
+    expect(getTooltipId()).toBe('iran-map-tooltip')
+    expect(getTooltipId('')).toBe('iran-map-tooltip')
+    expect(getTooltipId('  ')).toBe('iran-map-tooltip')
+    expect(getTooltipId('a1')).toBe('iran-map-tooltip-a1')
+    expect(getTooltipId(' my map ')).toBe('iran-map-tooltip-my-map')
+  })
+
+  it('exports provinceCatalogs from ./lean and re-exports it from ./full', async () => {
+    const lean = await import('../src/lean')
+    const full = await import('../src/full')
+    expect(Object.keys(lean.provinceCatalogs).sort()).toEqual(['provinceCapitals', 'provinces'])
+    expect(lean.provinceCatalogs.provinces).toHaveLength(31)
+    expect(full.provinceCatalogs).toBe(lean.provinceCatalogs)
+    expect(lean.provinceCatalogs.counties).toBeUndefined()
+  })
+})

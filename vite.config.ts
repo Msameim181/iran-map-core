@@ -3,6 +3,7 @@ import { defineConfig } from 'vitest/config'
 const entries = {
   index: 'src/index.ts',
   full: 'src/full.ts',
+  lean: 'src/lean.ts',
   provinces: 'src/provinces.ts',
   counties: 'src/counties.ts',
   geography: 'src/geography.ts',

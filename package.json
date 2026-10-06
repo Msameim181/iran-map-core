@@ -89,6 +89,9 @@
       ],
       "mini": [
         "dist/types/mini.d.ts"
+      ],
+      "lean": [
+        "dist/types/lean.d.ts"
       ]
     }
   },
@@ -111,6 +114,16 @@
       "require": {
         "types": "./dist/cjs/full.d.cts",
         "default": "./dist/cjs/full.cjs"
+      }
+    },
+    "./lean": {
+      "import": {
+        "types": "./dist/types/lean.d.ts",
+        "default": "./dist/esm/lean.js"
+      },
+      "require": {
+        "types": "./dist/cjs/lean.d.cts",
+        "default": "./dist/cjs/lean.cjs"
       }
     },
     "./provinces": {

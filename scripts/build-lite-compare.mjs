@@ -2,7 +2,9 @@
  * Builds a self-contained local page (.lite-compare/index.html) that compares the full catalogs with each lite level
  * side by side: zoomable, synchronized, with sizes and an outline-overlay diff.
  *
- *   node scripts/build-lite-compare.mjs      # then open .lite-compare/index.html
+ *   node scripts/build-lite-compare.mjs [output dir]   # default .lite-compare, then open index.html
+ *
+ * It reads only the committed catalogs in src/data, so CI can build it (see .github/workflows/pages.yml).
  */
 import { createRequire } from 'node:module'
 import fs from 'node:fs'
@@ -16,7 +18,7 @@ const require = createRequire(import.meta.url)
 const { readDataModule } = require('./lib/data-module.cjs')
 
 const root = path.resolve(import.meta.dirname, '..')
-const out = path.join(root, '.lite-compare')
+const out = path.resolve(process.argv[2] || path.join(root, '.lite-compare'))
 fs.rmSync(out, { recursive: true, force: true })
 fs.mkdirSync(path.join(out, 'data'), { recursive: true })
 

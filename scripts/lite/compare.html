@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Iran map: lite catalogs comparison</title>
+    <title>Iran Map data levels: Full vs Standard vs Lite vs Mini</title>
     <style>
       :root {
         --bg: #f6f7f8;
@@ -171,6 +171,16 @@
         color: var(--muted);
         max-width: 100ch;
       }
+      a {
+        color: var(--accent);
+      }
+      .loading {
+        margin: 0;
+        padding: 40px 12px;
+        text-align: center;
+        color: var(--muted);
+        background: var(--panel);
+      }
       .legend-red {
         color: #e11d48;
         font-weight: 600;
@@ -179,7 +189,7 @@
   </head>
   <body>
     <header>
-      <h1>Iran map: lite catalogs comparison</h1>
+      <h1>Iran Map data levels: Full vs Standard vs Lite vs Mini</h1>
       <p class="lede">
         Full (legacy) data next to three lite levels, rendered by the real <code>buildMapModel</code> with identical
         sample data. Scroll to zoom, drag to pan (all panels move together), click an area or island to select it in
@@ -222,13 +232,8 @@
       </p>
     </main>
     <script src="data/meta.js"></script>
-    <script src="data/full.js"></script>
-    <script src="data/standard.js"></script>
-    <script src="data/lite.js"></script>
-    <script src="data/mini.js"></script>
     <script src="compare.js"></script>
     <script>
-      const D = window.IRAN_DATA
       const M = window.IRAN_META
       const NAMES = { full: 'Full (current)', standard: 'Standard', lite: 'Lite', mini: 'Mini' }
       const $ = (id) => document.getElementById(id)
@@ -246,14 +251,17 @@
       const currentView = () => M.views.find((v) => v.id === $('view').value)
       const currentMode = () => ($('mode').value === 'auto' ? currentView().mode : $('mode').value)
       const boxString = (b) => b.map((n) => +n.toFixed(3)).join(' ')
-      const catalogsOf = (level) => ({
-        provinces: D[level].provinces,
-        counties: D[level].counties,
-        islands: D[level].islands,
-        waterBodies: D[level].waterBodies,
-        provinceCapitals: D[level].provinceCapitals,
-        countyCapitals: D[level].countyCapitals,
-      })
+      const catalogsOf = (level) => {
+        const data = window.IRAN_DATA[level]
+        return {
+          provinces: data.provinces,
+          counties: data.counties,
+          islands: data.islands,
+          waterBodies: data.waterBodies,
+          provinceCapitals: data.provinceCapitals,
+          countyCapitals: data.countyCapitals,
+        }
+      }
 
       function layerSizes(level) {
         const s = M.sizes[level]
@@ -313,25 +321,55 @@
         $('sizes').innerHTML = html
       }
 
+      const loaded = {}
+      function renderPanel(level, mode) {
+        $('stage-' + level).innerHTML = IranMapCompare.renderSvg(catalogsOf(level), {
+          mode,
+          viewBox: boxString(state.box),
+          showWater: $('water').checked,
+          showIslands: $('islands').checked,
+          showLabels: $('labels').checked && mode === 'province',
+          showCapitals: $('capitals').checked,
+          overlayId: $('overlay').checked ? 'full-outline' : undefined,
+          defineOverlay: level === 'full' && $('overlay').checked,
+        })
+      }
+
       function render() {
-        const view = currentView()
         const mode = currentMode()
         for (const level of M.order) {
-          $('stage-' + level).innerHTML = IranMapCompare.renderSvg(catalogsOf(level), {
-            mode,
-            viewBox: boxString(state.box),
-            showWater: $('water').checked,
-            showIslands: $('islands').checked,
-            showLabels: $('labels').checked && mode === 'province',
-            showCapitals: $('capitals').checked,
-            overlayId: $('overlay').checked ? 'full-outline' : undefined,
-            defineOverlay: level === 'full' && $('overlay').checked,
-          })
+          if (loaded[level]) renderPanel(level, mode)
+          else
+            $('stage-' + level).innerHTML =
+              `<p class="loading">Loading ${NAMES[level]} catalogs (${fmt(M.sizes[level].provinces.raw + M.sizes[level].counties.raw + M.sizes[level].islands.raw + M.sizes[level].waterBodies.raw)} raw)…</p>`
         }
         applySelection()
         renderSizes()
         $('zoom').textContent = `zoom ×${(1000 / state.box[2]).toFixed(1)}`
-        void view
+      }
+
+      // Catalogs load one at a time, smallest first, so panels appear as soon as their data arrives.
+      function loadLevels() {
+        const queue = ['lite', 'standard', 'mini', 'full']
+        const next = () => {
+          const level = queue.shift()
+          if (!level) return
+          const script = document.createElement('script')
+          script.src = `data/${level}.js`
+          script.onload = () => {
+            loaded[level] = true
+            if (level === 'full') render()
+            else renderPanel(level, currentMode())
+            if (level !== 'full') applySelection()
+            next()
+          }
+          script.onerror = () => {
+            $('stage-' + level).innerHTML = `<p class="loading">Could not load data/${level}.js</p>`
+            next()
+          }
+          document.head.appendChild(script)
+        }
+        next()
       }
 
       function setViewBoxes() {
@@ -448,6 +486,7 @@
       })
       renderTable()
       chooseView()
+      loadLevels()
     </script>
   </body>
 </html>

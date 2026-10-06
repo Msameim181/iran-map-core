@@ -1,0 +1,52 @@
+name: Release
+
+# Publishes to GitHub Packages when a v* tag is pushed. Uses the built-in GITHUB_TOKEN; no personal tokens.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write # create the GitHub Release
+  packages: write # publish to GitHub Packages
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://npm.pkg.github.com
+          scope: '@msameim181'
+      - run: npm ci
+      - name: Verify the tag matches package.json
+        run: |
+          if [ "v$(node -p "require('./package.json').version")" != "${GITHUB_REF_NAME}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match package.json version" >&2
+            exit 1
+          fi
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - name: Publish to GitHub Packages
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create GitHub Release
+        run: gh release create "${GITHUB_REF_NAME}" --title "${GITHUB_REF_NAME}" --notes-file <(awk -v v="${GITHUB_REF_NAME#v}" '$0 ~ "^## \\["v"\\]" {p=1; next} /^## \[/ {p=0} p' CHANGELOG.md) --verify-tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # --- npmjs.org (later) ---------------------------------------------------------------------------------
+      # Needs an NPM_TOKEN repository secret (an npm automation token). Uncomment, and drop the publishConfig
+      # registry override or pass `--registry https://registry.npmjs.org` and `--access public`.
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 22
+      #     registry-url: https://registry.npmjs.org
+      # - run: npm publish --access public --registry https://registry.npmjs.org --provenance
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

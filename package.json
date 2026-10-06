@@ -28,6 +28,34 @@
   "main": "./dist/cjs/index.cjs",
   "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "full": [
+        "dist/types/full.d.ts"
+      ],
+      "provinces": [
+        "dist/types/provinces.d.ts"
+      ],
+      "counties": [
+        "dist/types/counties.d.ts"
+      ],
+      "geography": [
+        "dist/types/geography.d.ts"
+      ],
+      "islands": [
+        "dist/types/islands.d.ts"
+      ],
+      "water": [
+        "dist/types/water.d.ts"
+      ],
+      "capitals/provinces": [
+        "dist/types/capitals/provinces.d.ts"
+      ],
+      "capitals/counties": [
+        "dist/types/capitals/counties.d.ts"
+      ]
+    }
+  },
   "exports": {
     ".": {
       "import": {
@@ -125,7 +153,10 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "LICENSE",
+    "NOTICE",
+    "README.md"
   ],
   "engines": {
     "node": ">=18"

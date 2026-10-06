@@ -114,7 +114,45 @@ export interface BoundEdit {
   bands?: IranMapColorBand[]
 }
 
-/** Records a min/max input edit; commits the new band list only when the edited band stays valid. */
+/**
+ * Drafts hold what a person is typing, keyed by band index (`${index}:${field}`). They never change the committed
+ * bands by themselves. Clear them (or use {@link removeBandWithDrafts}) whenever bands are removed or reordered,
+ * because the keys are positions, not band identities.
+ */
+export const setDraft = (
+  drafts: ScoreBandDrafts,
+  index: number,
+  field: ScoreBandField,
+  text: string,
+): ScoreBandDrafts => ({ ...drafts, [getDraftKey(index, field)]: text })
+
+/**
+ * Commits the in-progress text of a band (call it on blur or Enter, not on every keystroke). A blank bound means
+ * "unbounded" and is committed deliberately here. Returns `bands: undefined` (and unchanged drafts) when there is
+ * no such band, nothing was typed, or the result is invalid; on success the band's drafts are cleared.
+ */
+export const commitDraft = (
+  bands: IranMapColorBand[],
+  drafts: ScoreBandDrafts,
+  index: number,
+  scale: ScoreBandScale = scoreBandsDefaults.scale,
+): BoundEdit => {
+  const band = bands[index]
+  const hasDraft = (['min', 'max'] as const).some((field) => drafts[getDraftKey(index, field)] !== undefined)
+  if (!band || !hasDraft) return { drafts }
+  const next = applyDrafts(band, drafts, index)
+  if (!isValidBand(next, scale)) return { drafts }
+  const remaining = { ...drafts }
+  delete remaining[getDraftKey(index, 'min')]
+  delete remaining[getDraftKey(index, 'max')]
+  return { drafts: remaining, bands: bands.map((item, position) => (position === index ? next : item)) }
+}
+
+/**
+ * Records a min/max input edit and commits the new band list at once, when the edited band stays valid. This commits
+ * on every call, so intermediate text (for example a cleared field) changes the map while typing; prefer
+ * {@link setDraft} on input and {@link commitDraft} on blur. An out-of-range `index` commits nothing.
+ */
 export const editBound = (
   bands: IranMapColorBand[],
   drafts: ScoreBandDrafts,
@@ -123,7 +161,8 @@ export const editBound = (
   text: string,
   scale: ScoreBandScale,
 ): BoundEdit => {
-  const nextDrafts = { ...drafts, [getDraftKey(index, field)]: text }
+  if (!bands[index]) return { drafts }
+  const nextDrafts = setDraft(drafts, index, field, text)
   const band = { ...applyDrafts(bands[index], drafts, index), [field]: parseBound(text) }
   return {
     drafts: nextDrafts,
@@ -137,10 +176,27 @@ export const updateBand = (bands: IranMapColorBand[], index: number, patch: Part
 export const removeBand = (bands: IranMapColorBand[], index: number) =>
   bands.filter((_, position) => position !== index)
 
-/** Appends a new band spanning the whole display domain. */
-export const addBand = (bands: IranMapColorBand[], min: number, max: number): IranMapColorBand[] => [
+/** Removes a band and re-keys the drafts of the bands after it, so no draft lands on the wrong band. */
+export const removeBandWithDrafts = (bands: IranMapColorBand[], drafts: ScoreBandDrafts, index: number) => {
+  const next: ScoreBandDrafts = {}
+  for (const [key, text] of Object.entries(drafts)) {
+    const [position, field] = key.split(':')
+    const at = Number(position)
+    if (at === index) continue
+    next[`${at > index ? at - 1 : at}:${field}`] = text
+  }
+  return { bands: removeBand(bands, index), drafts: next }
+}
+
+/**
+ * Appends a band that starts at `min` and has no upper bound, so the top of the domain (for example a score of 100)
+ * is included: `max` is exclusive, and a band ending at the domain's `max` would leave that value uncolored.
+ * The third parameter is accepted for compatibility with 0.1.x callers and ignored.
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const addBand = (bands: IranMapColorBand[], min: number, _max?: number): IranMapColorBand[] => [
   ...bands,
-  { min, max, color: scoreBandsDefaults.newBandColor, label: scoreBandsDefaults.newBandLabel },
+  { min, color: scoreBandsDefaults.newBandColor, label: scoreBandsDefaults.newBandLabel },
 ]
 
 /** `<input type="color">` only accepts `#rrggbb`. */

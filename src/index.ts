@@ -64,6 +64,7 @@ export type { AreaSelection } from './model/selection.js'
 export {
   addBand,
   applyDrafts,
+  commitDraft,
   editBound,
   getBoundInputLimits,
   getColorInputValue,
@@ -78,7 +79,9 @@ export {
   isValidDomain,
   parseBound,
   removeBand,
+  removeBandWithDrafts,
   scoreBandsDefaults,
+  setDraft,
   scoreBandsText,
   updateBand,
 } from './scoreBands/logic.js'

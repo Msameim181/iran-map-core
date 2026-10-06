@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
   addBand,
+  commitDraft,
+  removeBandWithDrafts,
+  setDraft,
   applyDrafts,
   editBound,
   getBoundInputLimits,
@@ -117,7 +120,7 @@ describe('Score band list edits', () => {
     expect(initialBands[0].label).toBe('Low')
     const added = addBand(initialBands, 0, 100)
     expect(added).toHaveLength(3)
-    expect(added[2]).toEqual({ min: 0, max: 100, color: '#75b9ad', label: 'New band' })
+    expect(added[2]).toEqual({ min: 0, color: '#75b9ad', label: 'New band' })
     expect(removeBand(added, 2)).toEqual(initialBands)
   })
 
@@ -136,5 +139,48 @@ describe('Score bands shared with the map', () => {
     expect(findArea(model, 'province', 'kerman')?.fill).toBe('#ef4444')
     const edited = editBound(initialBands, {}, 0, 'max', '60', 'score').bands!
     expect(findArea(build({ data: { fars: 50 }, colorBands: edited }), 'province', 'fars')?.fill).toBe('#facc15')
+  })
+})
+
+describe('Score band drafts and commit-on-blur', () => {
+  const bands: IranMapColorBand[] = [
+    { min: 0, max: 50, color: '#111111' },
+    { min: 50, max: 100, color: '#222222' },
+  ]
+
+  it('keeps typing out of the committed bands until commitDraft', () => {
+    let drafts = setDraft({}, 0, 'max', '')
+    expect(commitDraft(bands, drafts, 0, 'score').bands?.[0].max).toBeUndefined()
+    drafts = setDraft({}, 0, 'max', '-')
+    expect(commitDraft(bands, drafts, 0, 'score').bands).toBeUndefined()
+    drafts = setDraft({}, 0, 'max', '12')
+    const committed = commitDraft(bands, drafts, 0, 'score')
+    expect(committed.bands?.[0]).toEqual({ min: 0, max: 12, color: '#111111' })
+    expect(committed.drafts).toEqual({})
+  })
+
+  it('commits nothing for invalid text, no draft or an unknown band', () => {
+    const invalid = setDraft({}, 0, 'min', '60')
+    expect(commitDraft(bands, invalid, 0, 'score')).toEqual({ drafts: invalid })
+    expect(commitDraft(bands, {}, 0, 'score').bands).toBeUndefined()
+    expect(commitDraft(bands, invalid, 7, 'score').bands).toBeUndefined()
+  })
+
+  it('does not commit an edit of a band that does not exist', () => {
+    expect(editBound(bands, {}, 5, 'min', '3', 'score')).toEqual({ drafts: {} })
+    expect(editBound(bands, {}, -1, 'min', '3', 'score').bands).toBeUndefined()
+  })
+
+  it('re-keys drafts when a band is removed', () => {
+    const drafts = { '0:min': '5', '1:max': 'abc', '2:min': '9' }
+    const result = removeBandWithDrafts([...bands, { color: '#333333' }], drafts, 1)
+    expect(result.bands).toHaveLength(2)
+    expect(result.drafts).toEqual({ '0:min': '5', '1:min': '9' })
+  })
+
+  it('adds a band that includes the top of the domain', () => {
+    const added = addBand(bands, 0, 100)
+    const model = build({ data: { tehran: 100 }, colorBands: added.slice(2) })
+    expect(findArea(model, 'province', 'tehran')?.fill).toBe('#75b9ad')
   })
 })

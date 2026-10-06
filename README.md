@@ -4,7 +4,7 @@ Framework-free data, types and map-model builders for interactive maps of Iran. 
 code: renderers (such as `@msameim181/iran-map-react` and `@msameim181/iran-map-vue`) draw the model it builds, so
 every framework behaves identically.
 
-- **Light by design.** The root entry has no map data. Provinces, counties, capitals, islands and seas are separate
+- **Light by design.** The root entry has no map data, and every catalog also comes in `standard`, `lite` and `mini` levels (up to 97% smaller). Provinces, counties, capitals, islands and seas are separate
   modules (`"sideEffects": ["**/*.css"]`, tree-shakeable named exports), and you pass the ones you need to
   `buildMapModel`.
 - **Typed, dual format.** ESM, CJS, `.d.ts` and `.d.cts`; TypeScript strict.
@@ -108,6 +108,18 @@ for that are missing (`showIslands` and `showWater` count only when explicitly `
 
 Import the stylesheet once in your app: `import '@msameim181/iran-map-core/styles.css'`.
 
+Lighter levels (see [Choosing a level](#choosing-a-level)), for each `<level>` in `standard`, `lite` and `mini`:
+
+| Import                  | Contents                                                                                        |
+| ----------------------- | ----------------------------------------------------------------------------------------------- |
+| `.../provinces-<level>` | `provinceBoundaries` (same name and type as `/provinces`)                                       |
+| `.../counties-<level>`  | `countyBoundaries`                                                                              |
+| `.../geography-<level>` | `iranIslands`, `iranWaterBodies`                                                                |
+| `.../<level>`           | `<level>Catalogs` (everything), `<level>ProvinceCatalogs` (no counties), and the catalog arrays |
+
+Capitals are unchanged in every level: use `.../capitals/provinces` and `.../capitals/counties`, or the presets,
+which include them.
+
 ## API
 
 ### `buildMapModel(options, catalogs): IranMapModel`
@@ -137,19 +149,79 @@ Notes on matching: `matchesBoundary` (used for `focusProvince` and `detailedCoun
 name, name and OSM id. `findProvince` (used for region membership) accepts id, code, Persian name and name. Both keep
 the behavior of the original `react-iran-map`.
 
+## Choosing a level
+
+The catalogs come in four levels of detail. Every level keeps the same ids, names, codes, label anchors and types, so
+switching is a matter of passing different `catalogs` to `buildMapModel` (or to a wrapper's `catalogs` prop).
+
+| Level      | Use it for                                                          | Province view | Everything |
+| ---------- | ------------------------------------------------------------------- | ------------: | ---------: |
+| `full`     | Maximum fidelity, print, extreme zoom                               |        944 KB |    1893 KB |
+| `standard` | Zoomed or focused-province maps; visually identical to full         |        139 KB |     443 KB |
+| `lite`     | **The default light preset**: whole-country and province dashboards |         52 KB |     198 KB |
+| `mini`     | Thumbnails, sparklines, small widgets                               |         33 KB |     135 KB |
+
+Gzipped, as bundled by Vite from the packed tarball. "Province view" is provinces, islands, water and province
+capitals (`<level>ProvinceCatalogs`); "Everything" adds counties and county capitals (`<level>Catalogs`).
+
+See them side by side, with zoom, an outline overlay and click-to-select, on the
+**[Iran Map data levels: Full vs Standard vs Lite vs Mini](https://msameim181.github.io/iran-map-core/)** page.
+
+### What each level costs
+
+Measured against the full catalogs (1 map unit is about 2 km):
+
+| Catalog (gzip)                                   |   Full |     Standard |          Lite |          Mini |
+| ------------------------------------------------ | -----: | -----------: | ------------: | ------------: |
+| Provinces                                        | 398 KB |        90 KB |         35 KB |         21 KB |
+| Counties                                         | 925 KB |       280 KB |        123 KB |         79 KB |
+| Islands                                          |  24 KB |       4.2 KB |        2.1 KB |        2.0 KB |
+| Water                                            | 518 KB |        42 KB |         11 KB |        5.7 KB |
+| Max border drift                                 |      - | 0.04 (≈80 m) | 0.14 (≈270 m) | 0.38 (≈760 m) |
+| Max county area error (counties over 0.5 units²) |      - |        0.15% |          0.8% |          4.1% |
+| Smallest islands' area error                     |      - |  within 2.4% |    within 18% |    within 18% |
+
+- Neighbouring areas share identical borders at every level, so there are no gaps or overlaps.
+- Province labels and capital markers stay inside their provinces.
+- **Mini** drops the tiniest islets around Hormuz, Larak and Hengam at high zoom. Sea rings smaller than a level's
+  threshold (islets that were holes in the sea polygon) are dropped at every non-full level.
+
+### Relative paths
+
+Lite levels write `path` as compact **relative** SVG path data (`M x y l dx dy … z`). It is a valid `d` attribute and
+needs no decoding to draw. If you parse `path` yourself (it is also on the public island objects), use
+`getPathRings(path)`: it returns absolute `[x, y]` vertices for both the absolute format of the full catalogs and the
+relative format, and `getPathBounds` (used for `focusProvince`) understands both.
+
+### Regenerating the levels
+
+The levels are generated from the committed full catalogs, no external source data needed:
+
+```sh
+node scripts/build-lite.mjs [standard|lite|mini ...]   # writes src/data/lite/<level>/*.ts
+node scripts/build-lite-compare.mjs [output dir]       # builds the comparison page (default .lite-compare/)
+```
+
+Land (provinces and counties) and sea (islands and water) are each simplified as one topology
+(Visvalingam-Whyatt via `topojson-simplify`), then coordinates are rounded and written as relative path data. Tune the
+levels in `scripts/build-lite.mjs`; `tests/lite.test.ts` checks every level for fidelity and size budgets.
+
 ## Bundle size
 
 Measured by bundling tiny consumers from the packed tarball with Vite (minified, gzip level 9):
 
-| Consumer                                           | Raw (KB) | Gzip (KB) |
-| -------------------------------------------------- | -------: | --------: |
-| Logic only (`buildMapModel`, score bands; no data) |      1.1 |       0.6 |
-| Provinces (`/provinces`)                           |   1102.7 |     400.1 |
-| Provinces + province capitals                      |   1110.0 |     402.2 |
-| Provinces + islands + seas (`/geography`)          |   2731.0 |     941.8 |
-| Counties (extra lazy chunk on top of provinces)    |    ~2720 |      ~925 |
-| `/full` + `fullCatalogs` (everything)              |   5583.1 |    1892.9 |
-| `/full`, importing only `provinceBoundaries`       |   1102.7 |     400.1 |
+| Consumer                                               |         Raw (KB) |       Gzip (KB) |
+| ------------------------------------------------------ | ---------------: | --------------: |
+| Logic only (`buildMapModel`, score bands; no data)     |              1.1 |             0.6 |
+| `/provinces` (full)                                    |           1102.7 |           400.1 |
+| `/provinces-standard`                                  |            256.6 |            92.4 |
+| `/provinces-lite`                                      |            117.7 |            37.6 |
+| `/provinces-mini`                                      |             65.9 |            23.4 |
+| `<level>ProvinceCatalogs`: standard / lite / mini      |   392 / 163 / 95 |   139 / 52 / 33 |
+| `<level>Catalogs`: standard / lite / mini              | 1292 / 687 / 463 | 443 / 198 / 135 |
+| Provinces + islands + water + province capitals (full) |           2738.7 |           944.2 |
+| `/full` + `fullCatalogs` (everything)                  |           5583.6 |          1893.2 |
+| `/full`, importing only `provinceBoundaries`           |           1102.7 |           400.1 |
 
 A bundler that tree-shakes (Vite, Rollup, webpack production, esbuild) drops unused catalogs even from `/full`. CJS
 consumers are not tree-shaken, but each catalog is its own file, so only the ones you `require` are loaded.
@@ -165,7 +237,7 @@ node scripts/build-geography.cjs <coastline source dir> [output dir] # islands.t
 node scripts/build-capitals.cjs <province-capitals.json> <county-centers.json> [output dir]
 ```
 
-Known data note: seven county centers (`*.county-<osmId>` in `countyCapitalMarkers`) do not match any county boundary
+Known data note (full catalogs, inherited by every level): seven county centers (`*.county-<osmId>` in `countyCapitalMarkers`) do not match any county boundary
 id, and `northKhorasan.manehAndSamalqan` has no center. This is inherited from the source data.
 
 ## Development

@@ -1,6 +1,6 @@
 {
   "name": "@msameim181/iran-map-core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Framework-free data, types and geometry/model builders for interactive maps of Iran",
   "keywords": [
     "map",
@@ -53,6 +53,42 @@
       ],
       "capitals/counties": [
         "dist/types/capitals/counties.d.ts"
+      ],
+      "provinces-standard": [
+        "dist/types/provinces-standard.d.ts"
+      ],
+      "counties-standard": [
+        "dist/types/counties-standard.d.ts"
+      ],
+      "geography-standard": [
+        "dist/types/geography-standard.d.ts"
+      ],
+      "standard": [
+        "dist/types/standard.d.ts"
+      ],
+      "provinces-lite": [
+        "dist/types/provinces-lite.d.ts"
+      ],
+      "counties-lite": [
+        "dist/types/counties-lite.d.ts"
+      ],
+      "geography-lite": [
+        "dist/types/geography-lite.d.ts"
+      ],
+      "lite": [
+        "dist/types/lite.d.ts"
+      ],
+      "provinces-mini": [
+        "dist/types/provinces-mini.d.ts"
+      ],
+      "counties-mini": [
+        "dist/types/counties-mini.d.ts"
+      ],
+      "geography-mini": [
+        "dist/types/geography-mini.d.ts"
+      ],
+      "mini": [
+        "dist/types/mini.d.ts"
       ]
     }
   },
@@ -145,6 +181,126 @@
       "require": {
         "types": "./dist/cjs/capitals/counties.d.cts",
         "default": "./dist/cjs/capitals/counties.cjs"
+      }
+    },
+    "./provinces-standard": {
+      "import": {
+        "types": "./dist/types/provinces-standard.d.ts",
+        "default": "./dist/esm/provinces-standard.js"
+      },
+      "require": {
+        "types": "./dist/cjs/provinces-standard.d.cts",
+        "default": "./dist/cjs/provinces-standard.cjs"
+      }
+    },
+    "./counties-standard": {
+      "import": {
+        "types": "./dist/types/counties-standard.d.ts",
+        "default": "./dist/esm/counties-standard.js"
+      },
+      "require": {
+        "types": "./dist/cjs/counties-standard.d.cts",
+        "default": "./dist/cjs/counties-standard.cjs"
+      }
+    },
+    "./geography-standard": {
+      "import": {
+        "types": "./dist/types/geography-standard.d.ts",
+        "default": "./dist/esm/geography-standard.js"
+      },
+      "require": {
+        "types": "./dist/cjs/geography-standard.d.cts",
+        "default": "./dist/cjs/geography-standard.cjs"
+      }
+    },
+    "./standard": {
+      "import": {
+        "types": "./dist/types/standard.d.ts",
+        "default": "./dist/esm/standard.js"
+      },
+      "require": {
+        "types": "./dist/cjs/standard.d.cts",
+        "default": "./dist/cjs/standard.cjs"
+      }
+    },
+    "./provinces-lite": {
+      "import": {
+        "types": "./dist/types/provinces-lite.d.ts",
+        "default": "./dist/esm/provinces-lite.js"
+      },
+      "require": {
+        "types": "./dist/cjs/provinces-lite.d.cts",
+        "default": "./dist/cjs/provinces-lite.cjs"
+      }
+    },
+    "./counties-lite": {
+      "import": {
+        "types": "./dist/types/counties-lite.d.ts",
+        "default": "./dist/esm/counties-lite.js"
+      },
+      "require": {
+        "types": "./dist/cjs/counties-lite.d.cts",
+        "default": "./dist/cjs/counties-lite.cjs"
+      }
+    },
+    "./geography-lite": {
+      "import": {
+        "types": "./dist/types/geography-lite.d.ts",
+        "default": "./dist/esm/geography-lite.js"
+      },
+      "require": {
+        "types": "./dist/cjs/geography-lite.d.cts",
+        "default": "./dist/cjs/geography-lite.cjs"
+      }
+    },
+    "./lite": {
+      "import": {
+        "types": "./dist/types/lite.d.ts",
+        "default": "./dist/esm/lite.js"
+      },
+      "require": {
+        "types": "./dist/cjs/lite.d.cts",
+        "default": "./dist/cjs/lite.cjs"
+      }
+    },
+    "./provinces-mini": {
+      "import": {
+        "types": "./dist/types/provinces-mini.d.ts",
+        "default": "./dist/esm/provinces-mini.js"
+      },
+      "require": {
+        "types": "./dist/cjs/provinces-mini.d.cts",
+        "default": "./dist/cjs/provinces-mini.cjs"
+      }
+    },
+    "./counties-mini": {
+      "import": {
+        "types": "./dist/types/counties-mini.d.ts",
+        "default": "./dist/esm/counties-mini.js"
+      },
+      "require": {
+        "types": "./dist/cjs/counties-mini.d.cts",
+        "default": "./dist/cjs/counties-mini.cjs"
+      }
+    },
+    "./geography-mini": {
+      "import": {
+        "types": "./dist/types/geography-mini.d.ts",
+        "default": "./dist/esm/geography-mini.js"
+      },
+      "require": {
+        "types": "./dist/cjs/geography-mini.d.cts",
+        "default": "./dist/cjs/geography-mini.cjs"
+      }
+    },
+    "./mini": {
+      "import": {
+        "types": "./dist/types/mini.d.ts",
+        "default": "./dist/esm/mini.js"
+      },
+      "require": {
+        "types": "./dist/cjs/mini.d.cts",
+        "default": "./dist/cjs/mini.cjs"
       }
     },
     "./styles.css": "./dist/styles.css",

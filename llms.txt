@@ -1,0 +1,57 @@
+# @msameim181/iran-map-core
+
+> Framework-free TypeScript data and logic for an Iran SVG map: provinces, counties, capitals, Persian and English names, islands and seas.
+
+The root entry exports model builders, types, selection, color and tooltip helpers without importing map data.
+Pass catalogs to `buildMapModel(options, catalogs)` and render the resulting SVG paths in your own UI.
+The coordinate space is 1000 × 825. The core has no React, Vue or DOM dependency.
+
+Install from npm with `npm install @msameim181/iran-map-core`; no token is required. Use `/lean` for provinces
+and province capitals, `/full` for all catalogs, or individual catalog entries. `standard`, `lite` and `mini`
+provide lighter geometry. Import `@msameim181/iran-map-core/styles.css` in the app for the supplied styles.
+
+The package family includes the React and Vue renderers linked below. For rendering roles and tooltips, read
+Rendering notes; for source-data licenses, read NOTICE. Core model building runs in Node without a DOM.
+
+داده‌های نقشه ایران برای ساخت نقشه تعاملی شامل استان، شهرستان و مراکز استان با نام‌های فارسی است.
+
+## Docs
+
+- [README](https://raw.githubusercontent.com/Msameim181/iran-map-core/main/README.md): Installation, catalogs, API and rendering notes.
+- [CHANGELOG](https://raw.githubusercontent.com/Msameim181/iran-map-core/main/CHANGELOG.md): Version history and npm provenance publishing.
+- [API and helpers](https://github.com/Msameim181/iran-map-core/blob/main/README.md#api): Model options, return shape and exported helpers.
+- [Entry points](https://github.com/Msameim181/iran-map-core/blob/main/README.md#entry-points): Logic, catalog, data-level and CSS imports.
+- [Public types](https://github.com/Msameim181/iran-map-core/blob/main/src/interfaces.ts): Models, catalogs, values and shared wrapper types.
+- [Root exports](https://github.com/Msameim181/iran-map-core/blob/main/src/index.ts): Exported types and functions.
+- [Rendering notes](https://github.com/Msameim181/iran-map-core/blob/main/README.md#rendering-notes): Styles, SVG roles, tooltip ids and capital geometry.
+
+## Install
+
+- [npm package](https://www.npmjs.com/package/@msameim181/iran-map-core): Public npm install; no token needed.
+- [Install instructions](https://github.com/Msameim181/iran-map-core/blob/main/README.md#install): npm command.
+- [GitHub Packages alternative](https://github.com/Msameim181/iran-map-core/blob/main/README.md#from-github-packages-alternative): Authenticated scope-registry setup.
+
+## Examples
+
+- [Minimal usage](https://github.com/Msameim181/iran-map-core/blob/main/README.md#minimal-usage): Province model and capital markers with the lean catalogs.
+- [Catalog usage](https://github.com/Msameim181/iran-map-core/blob/main/README.md#usage): Individual catalogs, full preset and lazy-loaded counties.
+- [Data-level comparison](https://msameim181.github.io/iran-map-core/): Full, standard, lite and mini geometry.
+- [Model tests](https://github.com/Msameim181/iran-map-core/blob/main/tests/common.test.ts): Counties, regions, colors, focus and tooltips.
+- [Catalog tests](https://github.com/Msameim181/iran-map-core/blob/main/tests/catalogs.test.ts): Injected catalogs and missing-catalog warnings.
+
+## Related packages
+
+- [React renderer repository](https://github.com/Msameim181/iran-map-react): @msameim181/iran-map-react.
+- [React renderer on npm](https://www.npmjs.com/package/@msameim181/iran-map-react): npm install @msameim181/iran-map-react.
+- [React demo](https://msameim181.github.io/iran-map-react/): React renderer example.
+- [Vue renderer repository](https://github.com/Msameim181/iran-map-vue): @msameim181/iran-map-vue.
+- [Vue renderer on npm](https://www.npmjs.com/package/@msameim181/iran-map-vue): npm install @msameim181/iran-map-vue.
+- [Vue demo](https://msameim181.github.io/iran-map-vue/): Vue renderer example.
+
+## Optional
+
+- [Data attribution](https://raw.githubusercontent.com/Msameim181/iran-map-core/main/NOTICE): OSM and GeoNames sources and data licenses.
+- [Code license](https://raw.githubusercontent.com/Msameim181/iran-map-core/main/LICENSE): MIT license.
+- [Choosing a level](https://github.com/Msameim181/iran-map-core/blob/main/README.md#choosing-a-level): Geometry tradeoffs and catalog sizes.
+- [Release workflow](https://github.com/Msameim181/iran-map-core/blob/main/.github/workflows/release.yml): Tag guards, GitHub Packages and npm trusted publishing.
+- [Original react-iran-map](https://github.com/simamojtahedi/react-iran-map): Original project; extraction commit is recorded in the core changelog.

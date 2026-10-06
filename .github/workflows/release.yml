@@ -3,9 +3,14 @@ name: Release
 # Pushing a v* tag verifies the package, then publishes it. The build/verify jobs are read-only; only the publish
 # jobs hold a write permission. No personal tokens: GitHub Packages uses the built-in GITHUB_TOKEN and npmjs uses
 # trusted publishing (OIDC).
+#
+# Running the workflow by hand (workflow_dispatch) is a DRY RUN: it builds and verifies the package, then runs
+# `npm publish --dry-run` against both registries. The real publish and release jobs only run for a tag push, so
+# changes to this file or to the actions it uses can be tested from a branch without a tag.
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -25,9 +30,10 @@ jobs:
       - id: meta
         env:
           TAG: ${{ github.ref_name }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
           version="$(node -p "require('./package.json').version")"
-          if [ "v${version}" != "${TAG}" ]; then
+          if [ "${EVENT_NAME}" = "push" ] && [ "v${version}" != "${TAG}" ]; then
             echo "Tag ${TAG} does not match package.json version ${version}" >&2
             exit 1
           fi
@@ -39,6 +45,7 @@ jobs:
             echo "prerelease=${prerelease}"
           } >> "$GITHUB_OUTPUT"
       - name: Require the tagged commit to be on main
+        if: ${{ github.event_name == 'push' }}
         run: |
           git fetch --no-tags origin main
           if ! git merge-base --is-ancestor "${GITHUB_SHA}" origin/main; then
@@ -52,6 +59,7 @@ jobs:
 
   publish-github-packages:
     needs: [guard, verify]
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -81,6 +89,7 @@ jobs:
 
   github-release:
     needs: [guard, publish-github-packages]
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -112,7 +121,7 @@ jobs:
   # which is set once the trusted publisher is configured on npmjs.com for this repository and workflow.
   publish-npmjs:
     needs: [guard, verify]
-    if: ${{ vars.NPM_PUBLISH == 'true' }}
+    if: ${{ github.event_name == 'push' && vars.NPM_PUBLISH == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -139,3 +148,42 @@ jobs:
           else
             npm publish ./package/*.tgz --access public --tag "${DIST_TAG}" --registry https://registry.npmjs.org
           fi
+
+  # Manual runs only: the publish steps with --dry-run, so nothing is uploaded. Same setup as publish-npmjs
+  # (setup-node with the registry, pinned npm, the verified tarball), but read-only: no packages or id-token
+  # permission and no token.
+  dry-run-publish:
+    needs: [guard, verify]
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - name: Use npm with trusted publishing support
+        run: npm install -g npm@^11.5.1
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: package
+          path: package
+      # npm checks the registry even with --dry-run, and a branch normally carries a version that is already
+      # published, so that one rejection counts as a pass; any other failure (auth, setup, tarball) still fails.
+      - name: Dry-run publish to npmjs and GitHub Packages
+        run: |
+          dry_run() {
+            local out status=0
+            out="$(npm publish ./package/*.tgz --dry-run --tag next "$@" 2>&1)" || status=$?
+            echo "${out}"
+            if [ "${status}" -ne 0 ]; then
+              if grep -Eqi 'cannot publish over (the )?(previously published|existing) version' <<<"${out}"; then
+                echo "::notice::Version already published to ${*: -1}; the rest of the dry run passed"
+              else
+                return "${status}"
+              fi
+            fi
+          }
+          dry_run --access public --registry https://registry.npmjs.org
+          dry_run --registry https://npm.pkg.github.com

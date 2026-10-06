@@ -179,7 +179,6 @@ export type IranMapCatalogName = Exclude<keyof IranMapCatalogs, 'provinces'>
 /** Data-related subset of the wrapper props consumed by buildMapModel. */
 export type IranMapModelOptions = Pick<
   IranMapWrapperProps,
-  | 'data'
   | 'mode'
   | 'regions'
   | 'detailedCounties'
@@ -193,7 +192,10 @@ export type IranMapModelOptions = Pick<
   | 'showIslands'
   | 'showLabels'
   | 'showWater'
->
+> & {
+  /** Values by id, id tail, code or name. Missing or `null` means no data anywhere. */
+  data?: mapDataType | null
+}
 
 export interface IranMapModel {
   areas: RenderableMapArea[]

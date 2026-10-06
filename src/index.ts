@@ -56,6 +56,7 @@ export {
   getLabelMetrics,
   getLabeledWaterBodies,
   getProvinceLabelAreas,
+  getTooltipId,
   isActivationKey,
 } from './model/render.js'
 export { NO_PROVINCE_SELECTION, getDeselectProvince, resolveAreaSelection } from './model/selection.js'
@@ -64,6 +65,7 @@ export type { AreaSelection } from './model/selection.js'
 export {
   addBand,
   applyDrafts,
+  commitDraft,
   editBound,
   getBoundInputLimits,
   getColorInputValue,
@@ -78,7 +80,9 @@ export {
   isValidDomain,
   parseBound,
   removeBand,
+  removeBandWithDrafts,
   scoreBandsDefaults,
+  setDraft,
   scoreBandsText,
   updateBand,
 } from './scoreBands/logic.js'

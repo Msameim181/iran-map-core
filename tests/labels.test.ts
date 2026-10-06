@@ -50,8 +50,8 @@ describe('Label and marker metrics', () => {
     expect(province.centerRadius).toBeCloseTo(1.4)
     expect(province.label).toEqual({ x: 11, y: -7.5 })
     const county = getCapitalMarkerGeometry({ areaType: 'county' }, 4, 0.5)
-    expect(county).toMatchObject({ shape: 'circle', size: 2, coreRadius: 2, hitRadius: 9, haloRadius: 3.5 })
-    expect(county.centerRadius).toBe(1.1)
+    expect(county).toMatchObject({ shape: 'circle', size: 2, coreRadius: 2, hitRadius: 4.5, haloRadius: 3.5 })
+    expect(county.centerRadius).toBeCloseTo(0.56)
   })
 
   it('filters province labels and sea labels', () => {
@@ -60,5 +60,15 @@ describe('Label and marker metrics', () => {
     expect(getProvinceLabelAreas(build({ mode: 'county' }).areas)).toHaveLength(0)
     expect(getLabeledWaterBodies(catalogs.waterBodies!).map((water) => water.id)).not.toContain('straitOfHormuz')
     expect(getLabeledWaterBodies(catalogs.waterBodies!)).toHaveLength(3)
+  })
+
+  it('scales the minimum hit and center radii in focused views so the core stays visible', () => {
+    const focused = getCapitalMarkerGeometry({ areaType: 'county' }, 4, 0.12)
+    expect(focused.size).toBeCloseTo(0.48)
+    expect(focused.hitRadius).toBeCloseTo(1.08)
+    expect(focused.centerRadius).toBeLessThan(focused.coreRadius)
+    const full = getCapitalMarkerGeometry({ areaType: 'county' }, 4, 1)
+    expect(full.hitRadius).toBe(9)
+    expect(full.centerRadius).toBeLessThan(full.coreRadius)
   })
 })

@@ -89,6 +89,9 @@
       ],
       "mini": [
         "dist/types/mini.d.ts"
+      ],
+      "lean": [
+        "dist/types/lean.d.ts"
       ]
     }
   },
@@ -111,6 +114,16 @@
       "require": {
         "types": "./dist/cjs/full.d.cts",
         "default": "./dist/cjs/full.cjs"
+      }
+    },
+    "./lean": {
+      "import": {
+        "types": "./dist/types/lean.d.ts",
+        "default": "./dist/esm/lean.js"
+      },
+      "require": {
+        "types": "./dist/cjs/lean.d.cts",
+        "default": "./dist/cjs/lean.cjs"
       }
     },
     "./provinces": {
@@ -330,9 +343,14 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "check:package": "publint run --pack npm --strict && attw --pack . --profile node16 --exclude-entrypoints ./styles.css ./iran-map.css ./score-bands.css",
+    "smoke": "node scripts/smoke-runtime.mjs && node scripts/smoke-types.mjs",
+    "check:size": "node scripts/check-size.mjs",
+    "build:compare": "node scripts/build-lite-compare.mjs"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
     "@eslint/js": "^10.0.1",
     "@types/node": "^26.6.4",
     "eslint": "^10.12.0",
@@ -341,6 +359,7 @@
     "globals": "^17.13.0",
     "polygon-clipping": "^0.15.7",
     "prettier": "^3.9.9",
+    "publint": "^0.3.25",
     "topojson-client": "^3.1.0",
     "topojson-server": "^3.0.1",
     "topojson-simplify": "^3.0.3",

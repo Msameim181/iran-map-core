@@ -50,13 +50,18 @@ export const getRegionValue = (
   if (keys.some((key) => key !== undefined && hasOwn(data, key))) {
     return getValue(data, keys)
   }
-  const values = region.provinces
-    .map((provinceKey) => {
-      const province = findProvince(provinces, provinceKey)
-      return province ? getBoundaryValue(province, data) : undefined
-    })
+  // Resolve aliases (id, code, Persian name, name) to unique provinces so each counts once.
+  const members = new Map<string, MapBoundary>()
+  for (const key of region.provinces) {
+    const province = findProvince(provinces, key)
+    if (province) members.set(province.id, province)
+  }
+  const values = Array.from(members.values())
+    .map((province) => getBoundaryValue(province, data))
     .filter((value): value is number => value !== undefined)
-  return normalizeMapValue(aggregate(values, operation))
+  // Only inputs are normalized: any finite aggregate (even -1 or a negative sum) is real data.
+  const result = aggregate(values, operation)
+  return result !== undefined && Number.isFinite(result) ? result : undefined
 }
 
 /** Half-open bands: `min` inclusive, `max` exclusive; the first matching band wins. */
@@ -75,4 +80,15 @@ export const matchesBoundary = (boundary: MapBoundary, key: string) =>
   boundary.id.split('.').pop() === key ||
   boundary.faName === key ||
   boundary.name === key ||
-  String(boundary.osmId) === key
+  (boundary.osmId !== undefined && String(boundary.osmId) === key)
+
+/** Tests many keys at once: the same fields as {@link matchesBoundary}, but O(1) per boundary. */
+export const createBoundaryMatcher = (keys: Iterable<string>) => {
+  const set = new Set(keys)
+  return (boundary: MapBoundary) =>
+    set.has(boundary.id) ||
+    set.has(boundary.id.split('.').pop()!) ||
+    set.has(boundary.faName) ||
+    set.has(boundary.name) ||
+    (boundary.osmId !== undefined && set.has(String(boundary.osmId)))
+}

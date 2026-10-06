@@ -7,7 +7,7 @@ every framework behaves identically.
 - **Light by design.** The root entry has no map data, and every catalog also comes in `standard`, `lite` and `mini` levels (up to 97% smaller). Provinces, counties, capitals, islands and seas are separate
   modules (`"sideEffects": ["**/*.css"]`, tree-shakeable named exports), and you pass the ones you need to
   `buildMapModel`.
-- **Typed, dual format.** ESM, CJS, `.d.ts` and `.d.cts`; TypeScript strict.
+- **Typed, dual format.** ESM, CJS, `.d.ts` and `.d.cts`; TypeScript strict. Node 18+.
 - **Pure.** `buildMapModel`, tooltips, selection and score-band logic are plain functions. Node 18+; tests run without a
   DOM.
 
@@ -51,6 +51,9 @@ const model = buildMapModel(
 model.areas // [{ id, name, faName, type, value, path, fill, labelX, labelY, ... }]
 model.viewBox // '0 0 1000 825'
 ```
+
+Or, shorter: `import { provinceCatalogs } from '@msameim181/iran-map-core/lean'`. `/lean` imports nothing but the
+provinces and province capitals, even for native ESM/CJS consumers without a bundler.
 
 ### Full: everything
 
@@ -98,7 +101,8 @@ for that are missing (`showIslands` and `showWater` count only when explicitly `
 | Import                                            | Contents                                                                                  |
 | ------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | `@msameim181/iran-map-core`                       | Logic and types only (no map data)                                                        |
-| `@msameim181/iran-map-core/full`                  | Everything above plus all catalogs, `fullCatalogs`, `provinceCatalogs`                    |
+| `@msameim181/iran-map-core/lean`                  | `provinceCatalogs` (provinces + province capitals) and nothing else: the leanest preset   |
+| `@msameim181/iran-map-core/full`                  | Everything above plus all catalogs, `fullCatalogs`, and `provinceCatalogs` re-exported    |
 | `.../provinces`                                   | `provinceBoundaries`                                                                      |
 | `.../counties`                                    | `countyBoundaries`                                                                        |
 | `.../geography`                                   | `iranIslands`, `iranWaterBodies`                                                          |
@@ -148,6 +152,42 @@ All exports are fully typed; see `dist/types`.
 Notes on matching: `matchesBoundary` (used for `focusProvince` and `detailedCounties`) accepts id, id tail, Persian
 name, name and OSM id. `findProvince` (used for region membership) accepts id, code, Persian name and name. Both keep
 the behavior of the original `react-iran-map`.
+
+## Rendering notes
+
+- **Styles.** Import `@msameim181/iran-map-core/styles.css` once. Map areas get a visible `:focus-visible` ring (a 2px
+  amber stroke), like islands and capitals.
+- **Roles.** Give the `<svg>` `role="group"` with an `aria-label`, not `role="img"`: the areas inside are focusable
+  buttons, and `img` hides them from assistive technology.
+- **Tooltips.** `MAP_TOOLTIP_ID` is one shared id. When several maps share a page, give each its own with
+  `getTooltipId(instanceId)`, which returns `iran-map-tooltip-<instanceId>`, or the shared id without an argument.
+- **Capital markers.** `getCapitalMarkerGeometry` scales its minimum hit and center radii with `mapScale`, so
+  markers keep their proportions in focused views.
+
+### Score band editing
+
+`ScoreBands` logic is split so a UI can commit on blur instead of on every keystroke (issue #1):
+
+- `setDraft(drafts, index, field, text)` records what is typed; it never changes the bands.
+- `commitDraft(bands, drafts, index, scale)` commits a band's drafts on blur or Enter and returns
+  `{ drafts, bands? }`; `bands` is absent when nothing was typed, the band does not exist, or the result is invalid.
+  A blank bound is committed deliberately as unbounded.
+- `editBound(...)` commits on every call (the 0.1.x behavior). An out-of-range index commits nothing.
+- Drafts are keyed by band index. After removing a band use `removeBandWithDrafts(bands, drafts, index)` (it re-keys
+  the later drafts) or clear the drafts. `addBand(bands, min)` appends an open-ended band so the top of the domain
+  (a score of 100) is colored: `max` is exclusive.
+
+### Behavior inherited from the original `react-iran-map`
+
+These are kept for compatibility:
+
+- Province-keyed data also colors counties with the same id tail or name (for example `bushehr.bushehr` in county
+  mode), because values resolve by id, id tail, code, Persian name, then name.
+- In `region` mode a region is drawn as one area per member province, all with the same `id`. Key rendered elements by
+  index, not by id.
+- Band and color-scale maxima are exclusive (`min` ≤ value < `max`); use an open `max` to include the top value.
+- A region whose id equals a province or county id selects both. `buildMapModel` reports this, and duplicate region
+  ids, in `model.warnings` instead of changing the behavior.
 
 ## Choosing a level
 
@@ -232,7 +272,8 @@ Map geometry is generated by the scripts in `scripts/` from external source data
 The generated modules in `src/data` keep their attribution headers.
 
 ```sh
-node scripts/build-boundaries.cjs <iran-geojson dir> [output dir]    # provinces.ts, counties.ts
+WATER_SOURCE_ROOT=<water geojson dir> node scripts/build-boundaries.cjs <iran-geojson dir> [output dir]   # provinces.ts, counties.ts
+node scripts/build-boundaries.cjs --no-water <iran-geojson dir> [output dir]                              # skip subtracting water (changes the coastline)
 node scripts/build-geography.cjs <coastline source dir> [output dir] # islands.ts, water.ts
 node scripts/build-capitals.cjs <province-capitals.json> <county-centers.json> [output dir]
 ```

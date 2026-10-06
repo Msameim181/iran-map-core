@@ -13,6 +13,7 @@ import { DEFAULT_VIEW_BOX, getMapScale, getPathBounds } from './viewBox.js'
 import {
   colorFromBand,
   colorFromGradient,
+  createBoundaryMatcher,
   findProvince,
   getBoundaryValue,
   getRegionValue,
@@ -60,7 +61,7 @@ const MISSING_CATALOG_MESSAGES: Record<IranMapCatalogName, string> = {
  */
 export const buildMapModel = (options: IranMapModelOptions, catalogs: IranMapCatalogs): IranMapModel => {
   const {
-    data = {},
+    data: rawData,
     mode = iranMapDefaults.mode,
     regions = [],
     detailedCounties = [],
@@ -74,6 +75,7 @@ export const buildMapModel = (options: IranMapModelOptions, catalogs: IranMapCat
     showWater = iranMapDefaults.showWater,
     showLabels,
   } = options
+  const data = rawData ?? {}
   const { provinces } = catalogs
   const counties = catalogs.counties ?? []
   const warnings = getMissingCatalogs(options, catalogs).map((name) => MISSING_CATALOG_MESSAGES[name])
@@ -81,6 +83,9 @@ export const buildMapModel = (options: IranMapModelOptions, catalogs: IranMapCat
   const focusedProvince = focusProvince
     ? provinces.find((province) => matchesBoundary(province, focusProvince))
     : undefined
+  if (focusProvince && !focusedProvince) {
+    warnings.push(`focusProvince "${focusProvince}" matches no province; showing the whole country`)
+  }
   const scopedCounties = counties.filter((county) => !focusedProvince || county.provinceId === focusedProvince.id)
 
   const viewBox = focusedProvince
@@ -103,8 +108,29 @@ export const buildMapModel = (options: IranMapModelOptions, catalogs: IranMapCat
     })
   })
 
+  if (mode === 'region') {
+    const renderedIds = new Set([...provinces, ...counties].map((boundary) => boundary.id))
+    const seen = new Set<string>()
+    for (const region of regions) {
+      if (seen.has(region.id)) {
+        warnings.push(`region id "${region.id}" is used more than once; selection treats those regions as one area`)
+      }
+      seen.add(region.id)
+      if (renderedIds.has(region.id)) {
+        warnings.push(
+          `region id "${region.id}" equals a province or county id; selecting one selects the other, and deselecting emits the province payload`,
+        )
+      }
+    }
+  }
+
   const rawAreas: Array<Omit<RenderableMapArea, 'fill'>> = []
   const scopedProvinces = focusedProvince ? [focusedProvince] : provinces
+  const regionValues = new Map<IranMapRegion, number | undefined>()
+  const valueOfRegion = (region: IranMapRegion) => {
+    if (!regionValues.has(region)) regionValues.set(region, getRegionValue(region, data, regionAggregation, provinces))
+    return regionValues.get(region)
+  }
 
   if (mode === 'county') {
     scopedCounties.forEach((county) => {
@@ -122,19 +148,17 @@ export const buildMapModel = (options: IranMapModelOptions, catalogs: IranMapCat
           regionId: region.id,
           provinceId: province.id,
           path: province.path,
-          value: getRegionValue(region, data, regionAggregation, provinces),
+          value: valueOfRegion(region),
         })
       } else {
         rawAreas.push({ ...province, type: 'province', value: getBoundaryValue(province, data) })
       }
     })
 
-    const detailSet = new Set(detailedCounties)
-    scopedCounties
-      .filter((county) => Array.from(detailSet).some((key) => matchesBoundary(county, key)))
-      .forEach((county) => {
-        rawAreas.push({ ...county, type: 'county', value: getBoundaryValue(county, data) })
-      })
+    const isDetailed = createBoundaryMatcher(detailedCounties)
+    scopedCounties.filter(isDetailed).forEach((county) => {
+      rawAreas.push({ ...county, type: 'county', value: getBoundaryValue(county, data) })
+    })
   }
 
   const numericValues = rawAreas.map((area) => area.value).filter((value): value is number => value !== undefined)

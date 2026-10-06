@@ -5,3 +5,4 @@ dist
 *.tgz
 .lite-compare
 _site
+/package

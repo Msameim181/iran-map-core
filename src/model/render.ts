@@ -3,6 +3,15 @@ import type { IranMapCapital, IranMapWaterBody, RenderableMapArea, RenderableMap
 /** Element id shared by every `data-tooltip-id` and tooltip host. */
 export const MAP_TOOLTIP_ID = 'iran-map-tooltip'
 
+/**
+ * Tooltip element id for one map instance. Without an instance id it is the shared default {@link MAP_TOOLTIP_ID};
+ * with one (for example a per-component unique id) several maps on a page each get their own tooltip.
+ */
+export const getTooltipId = (instanceId?: string) => {
+  const id = instanceId?.trim().replace(/\s+/g, '-')
+  return id ? `${MAP_TOOLTIP_ID}-${id}` : MAP_TOOLTIP_ID
+}
+
 /** Class names of the interactive SVG elements (see styles.css). */
 export const MAP_CLASS_NAMES = {
   wrapper: 'iran-map-wrapper',
@@ -51,7 +60,10 @@ export const getLabelMetrics = (mapScale: number) => ({
   capitalLabel: { fontSize: 10 * mapScale, strokeWidth: 1.25 * mapScale },
 })
 
-/** Geometry of one capital marker: province capitals are diamonds (25% larger), county centers are circles. */
+/**
+ * Geometry of one capital marker: province capitals are diamonds (25% larger), county centers are circles. The
+ * minimum hit and center radii scale with `mapScale` too, so focused views keep the same on-screen proportions.
+ */
 export const getCapitalMarkerGeometry = (
   capital: Pick<IranMapCapital, 'areaType'>,
   markerSize: number,
@@ -62,13 +74,13 @@ export const getCapitalMarkerGeometry = (
   return {
     shape: isProvince ? ('diamond' as const) : ('circle' as const),
     size,
-    hitRadius: Math.max(9, size * 2),
+    hitRadius: Math.max(9 * mapScale, size * 2),
     haloRadius: size * 1.75,
     /** Circle radius for county markers. */
     coreRadius: size,
     /** SVG path for province (diamond) markers. */
     diamondPath: `M0 ${-size * 1.35} L${size * 1.35} 0 L0 ${size * 1.35} L${-size * 1.35} 0 Z`,
-    centerRadius: Math.max(1.1, size * 0.28),
+    centerRadius: Math.max(1.1 * mapScale, size * 0.28),
     label: { x: size * 2.2, y: -size * 1.5 },
   }
 }

@@ -41,6 +41,7 @@ export {
   isProvinceId,
   matchesBoundary,
 } from './model/values.js'
+export { getPathRings } from './model/path.js'
 export { DEFAULT_VIEW_BOX, MAP_HEIGHT, MAP_WIDTH, getMapScale, getPathBounds } from './model/viewBox.js'
 export {
   MAP_CLASS_NAMES,

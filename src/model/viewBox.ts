@@ -1,12 +1,12 @@
+import { getPathRings } from './path.js'
+
 export const MAP_WIDTH = 1000
 export const MAP_HEIGHT = 825
 export const DEFAULT_VIEW_BOX = `0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`
 
-/** Fits a view box around the `M`/`L` vertices of the given SVG paths, clamped to the map's coordinate space. */
+/** Fits a view box around the vertices of the given SVG paths (absolute or relative `M L H V Z` data), clamped to the map's coordinate space. */
 export const getPathBounds = (paths: string[], padding: number) => {
-  const coordinates = paths.flatMap((path) =>
-    Array.from(path.matchAll(/[ML](-?[\d.]+) (-?[\d.]+)/g), (match) => [Number(match[1]), Number(match[2])]),
-  )
+  const coordinates = paths.flatMap((path) => getPathRings(path).flat())
   if (!coordinates.length) return DEFAULT_VIEW_BOX
   const xValues = coordinates.map(([x]) => x)
   const yValues = coordinates.map(([, y]) => y)

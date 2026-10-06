@@ -4,6 +4,22 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] - 2026-10-06
+
+No runtime changes: the published code is identical to 0.2.1.
+
+### Changed
+
+- Documentation: the README opens with a one-line summary, then install, a minimal usage example, and comparisons with
+  `react-iran-map` and with raw GeoJSON, with a Persian summary line for search.
+- Package metadata: a more descriptive `description` and additional `keywords` for npm search.
+
+### Added
+
+- `llms.txt` ([llmstxt.org](https://llmstxt.org) format) and `AGENTS.md` (a guide for coding agents working on this
+  repository and for agents using the package). The Pages site serves `llms.txt` at its root.
+- A test that keeps the README anchors referenced by `llms.txt` valid and runs the README's minimal example.
+
 ## [0.2.1] - 2026-10-06
 
 No runtime changes: the published code is identical to 0.2.0.
@@ -99,6 +115,7 @@ renderer share one data set and one implementation of the map logic.
 
 - React-only prop types (`MapProps`) and components. They remain in `react-iran-map`.
 
+[0.2.2]: https://github.com/Msameim181/iran-map-core/releases/tag/v0.2.2
 [0.2.1]: https://github.com/Msameim181/iran-map-core/releases/tag/v0.2.1
 [0.2.0]: https://github.com/Msameim181/iran-map-core/releases/tag/v0.2.0
 [0.1.0]: https://github.com/Msameim181/iran-map-core/releases/tag/v0.1.0

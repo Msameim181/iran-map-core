@@ -162,4 +162,6 @@ fs.writeFileSync(
   path.join(out, 'index.html'),
   fs.readFileSync(path.join(import.meta.dirname, 'lite/compare.html'), 'utf8'),
 )
+// Serve the repository's llms.txt at the site root (https://msameim181.github.io/iran-map-core/llms.txt).
+fs.copyFileSync(path.join(root, 'llms.txt'), path.join(out, 'llms.txt'))
 console.log(`Wrote ${path.join(out, 'index.html')}`)

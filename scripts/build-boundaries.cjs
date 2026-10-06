@@ -3,14 +3,21 @@ const path = require('path')
 const polygonClipping = require('polygon-clipping')
 const { writeDataModule } = require('./lib/data-module.cjs')
 
-const inputRoot = process.argv[2]
-const outputDir = process.argv[3] || path.join(process.cwd(), 'src/data')
+const args = process.argv.slice(2)
+const noWater = args.includes('--no-water')
+const [inputRoot, outputArg] = args.filter((arg) => arg !== '--no-water')
+const outputDir = outputArg || path.join(process.cwd(), 'src/data')
 const waterSourceRoot = process.env.WATER_SOURCE_ROOT
 
-if (!inputRoot) {
-  throw new Error(
-    'Usage: WATER_SOURCE_ROOT=<water GeoJSON directory> node scripts/build-boundaries.js <iran-geojson data directory> [output directory]',
-  )
+const usage =
+  'Usage: WATER_SOURCE_ROOT=<water GeoJSON directory> node scripts/build-boundaries.cjs <iran-geojson data directory> [output directory]\n' +
+  '       node scripts/build-boundaries.cjs --no-water <iran-geojson data directory> [output directory]'
+
+if (!inputRoot) throw new Error(usage)
+// Without the water sources the sea is not subtracted from the land, which silently changes the coastline.
+// Fail loudly unless the caller explicitly opts out.
+if (!waterSourceRoot && !noWater) {
+  throw new Error(`WATER_SOURCE_ROOT is required (or pass --no-water to skip subtracting water).\n${usage}`)
 }
 
 const provinceCodes = {

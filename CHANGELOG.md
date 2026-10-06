@@ -4,6 +4,18 @@ All notable changes to this project are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-10-06
+
+No runtime changes: the published code is identical to 0.2.0.
+
+### Changed
+
+- Documentation: the README installs from npm first (`npm install @msameim181/iran-map-core`, no token), with GitHub
+  Packages as the alternative.
+- CI: Dependabot holds TypeScript at 6.0.x until `typescript-eslint` supports newer versions; its npm update runs were
+  failing with `dependency_file_not_resolvable`.
+- Releases now also publish to npmjs.org through trusted publishing (OIDC, no token), with provenance.
+
 ## [0.2.0] - 2026-10-06
 
 ### Added
@@ -87,5 +99,6 @@ renderer share one data set and one implementation of the map logic.
 
 - React-only prop types (`MapProps`) and components. They remain in `react-iran-map`.
 
+[0.2.1]: https://github.com/Msameim181/iran-map-core/releases/tag/v0.2.1
 [0.2.0]: https://github.com/Msameim181/iran-map-core/releases/tag/v0.2.0
 [0.1.0]: https://github.com/Msameim181/iran-map-core/releases/tag/v0.1.0

@@ -1,6 +1,6 @@
 {
   "name": "@msameim181/iran-map-core",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Framework-free data, types and geometry/model builders for interactive maps of Iran",
   "keywords": [
     "map",

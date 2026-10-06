@@ -1,0 +1,151 @@
+.iran-map-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  margin: auto;
+  overflow: hidden;
+  direction: ltr !important;
+}
+
+.iran-map-wrapper .iran-map {
+  display: block;
+  max-width: 100%;
+  overflow: visible;
+}
+
+.iran-map-wrapper .iran-map-area {
+  cursor: pointer;
+  outline: none;
+  transition:
+    fill 160ms ease,
+    opacity 160ms ease;
+}
+
+.iran-map-wrapper .iran-map-area:hover,
+.iran-map-wrapper .iran-map-area:focus-visible {
+  opacity: 0.84;
+}
+
+.iran-map-wrapper .iran-map-area:focus-visible {
+  filter: brightness(0.92);
+}
+
+.iran-map-water-layer,
+.iran-map-water-label,
+.iran-map-land-background {
+  pointer-events: none;
+}
+
+.iran-map-water-label-fa {
+  font-family: inherit;
+  font-weight: 700;
+}
+
+.iran-map-water-label-en {
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.iran-map-island {
+  cursor: pointer;
+  outline: none;
+}
+
+.iran-map-island-hit {
+  fill: transparent;
+}
+
+.iran-map-island-shape {
+  transition:
+    filter 140ms ease,
+    opacity 140ms ease;
+}
+
+.iran-map-island:hover .iran-map-island-shape,
+.iran-map-island:focus-visible .iran-map-island-shape {
+  filter: brightness(0.9);
+  opacity: 0.88;
+}
+
+.iran-map-island:focus-visible .iran-map-island-shape {
+  stroke: #f2c15a;
+  stroke-width: 2;
+}
+
+.iran-map-island-label {
+  pointer-events: none;
+  font-family: inherit;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: rgba(255, 255, 255, 0.92);
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.iran-map-capital {
+  cursor: pointer;
+  outline: none;
+}
+
+.iran-map-capital-hit {
+  fill: transparent;
+}
+
+.iran-map-capital-halo {
+  fill: rgba(255, 255, 255, 0.92);
+  stroke: rgba(18, 63, 75, 0.2);
+  stroke-width: 0.8;
+  vector-effect: non-scaling-stroke;
+}
+
+.iran-map-capital-core {
+  transition:
+    filter 140ms ease,
+    opacity 140ms ease;
+}
+
+.iran-map-capital-center {
+  fill: #fff;
+  pointer-events: none;
+}
+
+.iran-map-capital:hover .iran-map-capital-core,
+.iran-map-capital:focus-visible .iran-map-capital-core {
+  filter: brightness(1.35) drop-shadow(0 0 2px rgba(15, 23, 42, 0.55));
+}
+
+.iran-map-capital:focus-visible .iran-map-capital-halo {
+  stroke: #f2c15a;
+  stroke-width: 2;
+}
+
+.iran-map-capital-label {
+  pointer-events: none;
+  font-family: inherit;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: rgba(255, 255, 255, 0.92);
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.iran-map-label {
+  pointer-events: none;
+  font-family: inherit;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: rgba(255, 255, 255, 0.8);
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.iran-map-tooltip {
+  z-index: 10;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.16);
+  font-family: inherit;
+  direction: rtl;
+}

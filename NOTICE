@@ -1,0 +1,36 @@
+Iran administrative boundary data
+=================================
+
+The generated map paths in this package are derived from OpenStreetMap data.
+This includes administrative boundaries, physical coastlines, Iranian islands,
+and the Persian Gulf, Gulf of Oman, Caspian Sea, and Strait of Hormuz water polygons.
+
+Copyright: OpenStreetMap contributors
+License: Open Data Commons Open Database License (ODbL) 1.0
+Source: https://www.openstreetmap.org/copyright
+High-resolution administrative source:
+https://github.com/hosseinhabibi2004/iran-geojson
+Physical coastline source: OpenStreetMap water relations
+Caspian Sea: https://www.openstreetmap.org/relation/3987743
+Persian Gulf: https://www.openstreetmap.org/relation/9326283
+Gulf of Oman: https://www.openstreetmap.org/relation/9326279
+Strait of Hormuz: https://www.openstreetmap.org/relation/9326284
+
+Iran capital and administrative-center coordinate data
+======================================================
+
+The generated capital marker catalogs are primarily derived from GeoNames
+coordinate data distributed by the list-of-cities-in-Iran project. Ambiguous
+place-name matches were cross-checked and corrected using OpenStreetMap.
+
+GeoNames copyright: GeoNames
+GeoNames license: Creative Commons Attribution 4.0 International (CC BY 4.0)
+GeoNames source: https://www.geonames.org/
+License: https://creativecommons.org/licenses/by/4.0/
+Dataset source: https://github.com/sajaddp/list-of-cities-in-Iran
+
+OpenStreetMap copyright: OpenStreetMap contributors
+OpenStreetMap license: Open Data Commons Open Database License (ODbL) 1.0
+OpenStreetMap source: https://www.openstreetmap.org/copyright
+
+The application code remains licensed under the repository's MIT License.

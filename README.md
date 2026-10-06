@@ -1,15 +1,6 @@
 # @msameim181/iran-map-core
 
-Framework-free data, types and map-model builders for interactive maps of Iran. It contains no React, Vue or DOM
-code: renderers (such as `@msameim181/iran-map-react` and `@msameim181/iran-map-vue`) draw the model it builds, so
-every framework behaves identically.
-
-- **Light by design.** The root entry has no map data, and every catalog also comes in `standard`, `lite` and `mini` levels (up to 97% smaller). Provinces, counties, capitals, islands and seas are separate
-  modules (`"sideEffects": ["**/*.css"]`, tree-shakeable named exports), and you pass the ones you need to
-  `buildMapModel`.
-- **Typed, dual format.** ESM, CJS, `.d.ts` and `.d.cts`; TypeScript strict. Node 18+.
-- **Pure.** `buildMapModel`, tooltips, selection and score-band logic are plain functions. Node 18+; tests run without a
-  DOM.
+@msameim181/iran-map-core provides framework-free Iran SVG map data for provinces, counties, capitals, and Persian names.
 
 ## Install
 
@@ -32,6 +23,61 @@ GitHub Packages requires an authentication token with the `read:packages` scope 
 a token and export it as `NODE_AUTH_TOKEN` (in CI, the built-in `GITHUB_TOKEN` works for repositories in the same
 account or organization). Then run the same `npm install @msameim181/iran-map-core`. Note that the `@msameim181`
 registry line then applies to every package in that scope, so drop it again if you want to install from npm.
+
+## Minimal usage
+
+```ts
+import { buildMapModel } from '@msameim181/iran-map-core'
+import { provinceCatalogs } from '@msameim181/iran-map-core/lean'
+
+const model = buildMapModel({ data: { tehran: 55, fars: 7 }, capitalMarkers: 'province' }, provinceCatalogs)
+
+model.areas // SVG paths, names, values and fills
+model.capitals // Province capital markers
+model.viewBox // '0 0 1000 825'
+```
+
+The core builds a model; your renderer draws it. Import `@msameim181/iran-map-core/styles.css` once in the app
+for the supplied map and score-band styles.
+
+## Comparisons
+
+### Compared with `react-iran-map`
+
+The MIT core was extracted from the original
+[`react-iran-map`](https://github.com/simamojtahedi/react-iran-map) at commit `1609468`; matching and selection
+compatibility are documented below. This family separates framework-free data and logic into
+`@msameim181/iran-map-core`, with
+[`@msameim181/iran-map-react`](https://github.com/Msameim181/iran-map-react) and
+[`@msameim181/iran-map-vue`](https://github.com/Msameim181/iran-map-vue) as renderers. See the
+[React demo](https://msameim181.github.io/iran-map-react/) and
+[Vue demo](https://msameim181.github.io/iran-map-vue/).
+
+This core provides TypeScript types, DOM-free model building suitable for SSR, tree-shakeable catalog entries,
+`/lean` and `/full` presets, and `standard`, `lite` and `mini` data levels. Catalogs cover provinces, counties,
+capitals, islands and seas. Tooltip text, keyboard activation helpers and focus styles support renderer
+accessibility; the renderer supplies SVG roles and event handlers. npm releases use trusted publishing with
+provenance, as recorded in the [changelog](CHANGELOG.md).
+
+### Compared with raw GeoJSON, Natural Earth or OSM files
+
+This package supplies ready SVG paths in a 1000 × 825 coordinate space, ids, Persian and English names, capital
+markers, and selection and color logic. Its committed geometry comes from OSM; capital coordinates are primarily
+from GeoNames (see [NOTICE](NOTICE)). External source files are needed to regenerate the full geometry;
+[light data levels](#choosing-a-level) are generated from the committed catalogs.
+
+برای ساخت نقشه تعاملی، داده‌های نقشه ایران شامل استان، شهرستان و مراکز استان با نام‌های فارسی در دسترس است.
+
+## Overview
+
+Framework-free data, types and map-model builders for interactive maps of Iran. It contains no React, Vue or DOM
+code: renderers (such as `@msameim181/iran-map-react` and `@msameim181/iran-map-vue`) draw the model it builds.
+
+- The root entry has no map data. Boundary, island and water catalogs have `standard`, `lite` and `mini` levels.
+  Provinces, counties, capitals, islands and seas are separate modules (`"sideEffects": ["**/*.css"]`,
+  tree-shakeable named exports); pass the catalogs you need to `buildMapModel`.
+- ESM, CJS, `.d.ts` and `.d.cts`; TypeScript strict. Node 18+.
+- `buildMapModel`, tooltips, selection and score-band logic are plain functions. Tests run without a DOM.
 
 ## Usage
 

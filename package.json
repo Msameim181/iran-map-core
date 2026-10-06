@@ -1,15 +1,24 @@
 {
   "name": "@msameim181/iran-map-core",
-  "version": "0.2.1",
-  "description": "Framework-free data, types and geometry/model builders for interactive maps of Iran",
+  "version": "0.2.2",
+  "description": "Framework-free TypeScript data and logic for Iran SVG maps: provinces, counties, capitals, Persian names, selection and colors",
   "keywords": [
-    "map",
     "iran",
     "iran-map",
+    "persian",
+    "farsi",
+    "svg-map",
     "svg",
     "geojson",
     "provinces",
-    "counties"
+    "counties",
+    "capitals",
+    "choropleth",
+    "map",
+    "typescript",
+    "framework-free",
+    "map-data",
+    "ssr"
   ],
   "author": "Sima Mojtahedi",
   "license": "MIT",

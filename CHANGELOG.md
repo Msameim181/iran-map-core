@@ -20,12 +20,43 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
   (`scripts/build-lite-compare.mjs`).
 - CI lints the GitHub workflows with actionlint.
 
+- `@msameim181/iran-map-core/lean` (`provinceCatalogs` only; `/full` re-exports it), `getTooltipId(instanceId?)` for
+  per-instance tooltip ids, and `setDraft`, `commitDraft`, `removeBandWithDrafts` for commit-on-blur score band editing.
+- `model.warnings` also report a `focusProvince` that matches nothing, duplicate region ids, and region ids equal to a
+  province or county id.
+- Packed-tarball smoke tests (import and require of every entry on Node 18, 20 and 22; TypeScript consumers under
+  nodenext, bundler and node10 resolution), size budgets with a tree-shaking check, and `npm run check:package`
+  (publint and are-the-types-wrong, both pinned).
+
 ### Changed
 
+- `IranMapModelOptions.data` is optional and may be `null`.
+- `addBand` appends an open-ended band (no `max`) so the top of the score domain is colored; its third argument is now
+  ignored. `editBound` with an out-of-range index commits nothing.
+- The minimum hit and center radii of `getCapitalMarkerGeometry` scale with `mapScale` (county markers in focused views
+  no longer collapse into white dots).
+- `styles.css` draws a visible `:focus-visible` ring on map areas.
+- `scripts/build-boundaries.cjs` requires `WATER_SOURCE_ROOT` (or an explicit `--no-water`) instead of silently
+  skipping water subtraction.
+- Release workflow: read-only build and verify jobs, separate publish jobs, actions pinned by commit SHA, the tagged
+  commit must be on main, publishing is idempotent, prereleases use the `next` dist-tag, and an npmjs trusted-publishing
+  job is gated by the `NPM_PUBLISH` repository variable.
 - `getPathBounds` (and therefore `focusProvince`) parses relative `M L H V Z` path data. Behavior for absolute paths,
   including every full catalog, is unchanged.
 - The `path` of lite areas and islands uses relative path data (a valid `d` attribute). Code that parses `path` itself
   should use `getPathRings`.
+
+### Fixed
+
+- `getPathBounds` threw a `RangeError` on large input (all county paths at once); it is now single-pass, rounds its
+  output, and parses commas, exponents and missing separators. `getMapScale` no longer returns `NaN` for comma-separated
+  view boxes.
+- `matchesBoundary` matched the string `'undefined'` through a missing `osmId` (`focusProvince: 'undefined'` focused
+  Alborz).
+- Region aggregation counted a province once per alias (`'tehran'`, `'IR-23'`, `'تهران'`) and discarded valid
+  aggregates equal to `-1` (a sum of -3 and 2 became "no data"). Only inputs are normalized now; any finite aggregate is
+  kept.
+- `detailedCounties`, island owner lookup and region values no longer cost O(n×k).
 
 ## [0.1.0] - 2026-10-06
 

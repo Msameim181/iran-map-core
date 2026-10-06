@@ -12,6 +12,12 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # typescript-eslint peers typescript <6.1, so Dependabot cannot resolve a TypeScript 7 update
+      # ("dependency_file_not_resolvable ... Error while updating peer dependency"), and so can a 6.1 minor. Revisit when typescript-eslint
+      # supports TypeScript 7.
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major', 'version-update:semver-minor']
     groups:
       dev-dependencies:
         dependency-type: development

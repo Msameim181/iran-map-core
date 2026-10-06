@@ -13,7 +13,15 @@ every framework behaves identically.
 
 ## Install
 
-Packages are published to GitHub Packages first. Add the scope registry to your project's `.npmrc`:
+From npm, no token needed:
+
+```sh
+npm install @msameim181/iran-map-core
+```
+
+### From GitHub Packages (alternative)
+
+Every release is also published to GitHub Packages. Add the scope registry to your project's `.npmrc`:
 
 ```ini
 @msameim181:registry=https://npm.pkg.github.com
@@ -22,11 +30,8 @@ Packages are published to GitHub Packages first. Add the scope registry to your 
 
 GitHub Packages requires an authentication token with the `read:packages` scope **even for public packages**. Create
 a token and export it as `NODE_AUTH_TOKEN` (in CI, the built-in `GITHUB_TOKEN` works for repositories in the same
-account or organization). Then:
-
-```sh
-npm install @msameim181/iran-map-core
-```
+account or organization). Then run the same `npm install @msameim181/iran-map-core`. Note that the `@msameim181`
+registry line then applies to every package in that scope, so drop it again if you want to install from npm.
 
 ## Usage
 

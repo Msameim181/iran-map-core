@@ -169,7 +169,21 @@ jobs:
         with:
           name: package
           path: package
-      - name: Dry-run publish to npmjs
-        run: npm publish ./package/*.tgz --dry-run --access public --registry https://registry.npmjs.org --tag next
-      - name: Dry-run publish to GitHub Packages
-        run: npm publish ./package/*.tgz --dry-run --registry https://npm.pkg.github.com --tag next
+      # npm checks the registry even with --dry-run, and a branch normally carries a version that is already
+      # published, so that one rejection counts as a pass; any other failure (auth, setup, tarball) still fails.
+      - name: Dry-run publish to npmjs and GitHub Packages
+        run: |
+          dry_run() {
+            local out status=0
+            out="$(npm publish ./package/*.tgz --dry-run --tag next "$@" 2>&1)" || status=$?
+            echo "${out}"
+            if [ "${status}" -ne 0 ]; then
+              if grep -Eqi 'cannot publish over (the )?(previously published|existing) version' <<<"${out}"; then
+                echo "::notice::Version already published to ${*: -1}; the rest of the dry run passed"
+              else
+                return "${status}"
+              fi
+            fi
+          }
+          dry_run --access public --registry https://registry.npmjs.org
+          dry_run --registry https://npm.pkg.github.com

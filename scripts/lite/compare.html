@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Iran map: lite catalogs comparison</title>
+    <style>
+      :root {
+        --bg: #f6f7f8;
+        --panel: #fff;
+        --ink: #14212b;
+        --muted: #5b6b78;
+        --line: #d9e0e5;
+        --accent: #1e46b5;
+        --good: #146c43;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #11171c;
+          --panel: #1a232b;
+          --ink: #e6edf2;
+          --muted: #98a8b4;
+          --line: #2b3944;
+          --accent: #7da2ff;
+          --good: #5fd39a;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font:
+          14px/1.45 system-ui,
+          -apple-system,
+          'Segoe UI',
+          sans-serif;
+      }
+      header,
+      main {
+        max-width: 1500px;
+        margin: 0 auto;
+        padding: 16px 20px;
+      }
+      h1 {
+        margin: 0 0 4px;
+        font-size: 20px;
+      }
+      p.lede {
+        margin: 0;
+        color: var(--muted);
+        max-width: 90ch;
+      }
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 18px;
+        align-items: center;
+        padding: 12px 14px;
+        margin: 12px 0;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        position: sticky;
+        top: 0;
+        z-index: 5;
+      }
+      .toolbar label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      select,
+      button {
+        font: inherit;
+        color: inherit;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 5px 9px;
+      }
+      button {
+        cursor: pointer;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 560px), 1fr));
+        gap: 14px;
+      }
+      figure {
+        margin: 0;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      figcaption {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--line);
+      }
+      figcaption strong {
+        font-size: 15px;
+      }
+      figcaption .total {
+        float: right;
+        font-variant-numeric: tabular-nums;
+      }
+      figcaption .total b {
+        color: var(--good);
+      }
+      figcaption small {
+        display: block;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      .stage {
+        background: #fff;
+        cursor: grab;
+        touch-action: none;
+        user-select: none;
+      }
+      .stage.dragging {
+        cursor: grabbing;
+      }
+      .stage svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .stage .area,
+      .stage .island {
+        cursor: pointer;
+      }
+      #info {
+        margin: 12px 0;
+        padding: 8px 12px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        min-height: 38px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-variant-numeric: tabular-nums;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      th,
+      td {
+        text-align: right;
+        padding: 7px 10px;
+        border-bottom: 1px solid var(--line);
+      }
+      th:first-child,
+      td:first-child {
+        text-align: left;
+      }
+      tr.total td {
+        font-weight: 700;
+      }
+      h2 {
+        font-size: 16px;
+        margin: 22px 0 8px;
+      }
+      .note {
+        color: var(--muted);
+        max-width: 100ch;
+      }
+      .legend-red {
+        color: #e11d48;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Iran map: lite catalogs comparison</h1>
+      <p class="lede">
+        Full (legacy) data next to three lite levels, rendered by the real <code>buildMapModel</code> with identical
+        sample data. Scroll to zoom, drag to pan (all panels move together), click an area or island to select it in
+        every panel. Tick <span class="legend-red">“Overlay full outline”</span> to draw the full catalog's borders in
+        red on top of each lite panel: any red line that does not sit on a lite border is a displacement.
+      </p>
+    </header>
+    <main>
+      <div class="toolbar">
+        <label
+          >View
+          <select id="view"></select
+        ></label>
+        <label
+          >Layer
+          <select id="mode">
+            <option value="auto">Auto (view default)</option>
+            <option value="province">Provinces</option>
+            <option value="county">Counties</option>
+          </select></label
+        >
+        <label><input type="checkbox" id="water" checked /> Water</label>
+        <label><input type="checkbox" id="islands" checked /> Islands</label>
+        <label><input type="checkbox" id="labels" checked /> Labels</label>
+        <label><input type="checkbox" id="capitals" /> Capitals</label>
+        <label><input type="checkbox" id="overlay" /> <span class="legend-red">Overlay full outline</span></label>
+        <button id="reset" type="button">Reset zoom</button>
+        <span id="zoom" class="note"></span>
+      </div>
+      <div id="info">Click an area to inspect it.</div>
+      <div class="grid" id="grid"></div>
+      <h2>Sizes (JSON catalog, gzip level 9 / brotli)</h2>
+      <table id="sizes"></table>
+      <p class="note">
+        Each level keeps ids, names, codes, label anchors and every non-geometry field. Province, county, island and
+        water borders are simplified as shared topologies (Visvalingam-Whyatt) so neighbouring areas keep sharing
+        identical edges: no gaps or overlaps. Paths use compact relative SVG data (<code>M x y l dx dy … z</code>),
+        usable directly as a <code>d</code> attribute. Sea rings smaller than a level's threshold (tiny islets that were
+        holes in the sea polygon) are dropped. Capitals are unchanged in every level.
+      </p>
+    </main>
+    <script src="data/meta.js"></script>
+    <script src="data/full.js"></script>
+    <script src="data/standard.js"></script>
+    <script src="data/lite.js"></script>
+    <script src="data/mini.js"></script>
+    <script src="compare.js"></script>
+    <script>
+      const D = window.IRAN_DATA
+      const M = window.IRAN_META
+      const NAMES = { full: 'Full (current)', standard: 'Standard', lite: 'Lite', mini: 'Mini' }
+      const $ = (id) => document.getElementById(id)
+      const state = { selected: undefined, box: [0, 0, 1000, 825], home: [0, 0, 1000, 825] }
+      const fmt = (n) => (n >= 1024 ? (n / 1024).toFixed(2) + ' MB' : n.toFixed(n < 10 ? 1 : 0) + ' KB')
+
+      $('view').innerHTML = M.views.map((v) => `<option value="${v.id}">${v.label}</option>`).join('')
+      $('grid').innerHTML = M.order
+        .map(
+          (level) =>
+            `<figure><figcaption><span class="total" id="total-${level}"></span><strong>${NAMES[level]}</strong><small id="detail-${level}"></small></figcaption><div class="stage" id="stage-${level}"></div></figure>`,
+        )
+        .join('')
+
+      const currentView = () => M.views.find((v) => v.id === $('view').value)
+      const currentMode = () => ($('mode').value === 'auto' ? currentView().mode : $('mode').value)
+      const boxString = (b) => b.map((n) => +n.toFixed(3)).join(' ')
+      const catalogsOf = (level) => ({
+        provinces: D[level].provinces,
+        counties: D[level].counties,
+        islands: D[level].islands,
+        waterBodies: D[level].waterBodies,
+        provinceCapitals: D[level].provinceCapitals,
+        countyCapitals: D[level].countyCapitals,
+      })
+
+      function layerSizes(level) {
+        const s = M.sizes[level]
+        const mode = currentMode()
+        const parts = [['Provinces', s.provinces]]
+        if (mode === 'county') parts.push(['Counties', s.counties])
+        if ($('islands').checked) parts.push(['Islands', s.islands])
+        if ($('water').checked) parts.push(['Water', s.waterBodies])
+        if ($('capitals').checked)
+          parts.push([
+            mode === 'county' ? 'County capitals' : 'Province capitals',
+            mode === 'county' ? s.countyCapitals : s.provinceCapitals,
+          ])
+        return parts
+      }
+
+      function renderSizes() {
+        const base = layerSizes('full').reduce((n, [, v]) => n + v.gz, 0)
+        for (const level of M.order) {
+          const parts = layerSizes(level)
+          const gz = parts.reduce((n, [, v]) => n + v.gz, 0)
+          $('total-' + level).innerHTML =
+            level === 'full'
+              ? `<b>${fmt(gz)}</b> gz`
+              : `<b>${fmt(gz)}</b> gz · ${(100 - (gz / base) * 100).toFixed(0)}% smaller`
+          $('detail-' + level).textContent = parts.map(([name, v]) => `${name} ${fmt(v.gz)}`).join(' · ')
+        }
+      }
+
+      function renderTable() {
+        const rows = [
+          ['provinces', 'Provinces'],
+          ['counties', 'Counties'],
+          ['islands', 'Islands'],
+          ['waterBodies', 'Water'],
+          ['provinceCapitals', 'Province capitals'],
+          ['countyCapitals', 'County capitals'],
+        ]
+        let html =
+          '<tr><th>Catalog (gzip / brotli)</th>' + M.order.map((l) => `<th>${NAMES[l]}</th>`).join('') + '</tr>'
+        for (const [key, label] of rows)
+          html +=
+            `<tr><td>${label}</td>` +
+            M.order.map((l) => `<td>${fmt(M.sizes[l][key].gz)} / ${fmt(M.sizes[l][key].br)}</td>`).join('') +
+            '</tr>'
+        const sum = (l, keys) => keys.reduce((n, k) => n + M.sizes[l][k].gz, 0)
+        const provinceSet = ['provinces', 'islands', 'waterBodies', 'provinceCapitals']
+        const everything = [...provinceSet, 'counties', 'countyCapitals']
+        html +=
+          '<tr class="total"><td>Provinces + islands + water + capitals</td>' +
+          M.order.map((l) => `<td>${fmt(sum(l, provinceSet))}</td>`).join('') +
+          '</tr>'
+        html +=
+          '<tr class="total"><td>Everything (as /full)</td>' +
+          M.order.map((l) => `<td>${fmt(sum(l, everything))}</td>`).join('') +
+          '</tr>'
+        $('sizes').innerHTML = html
+      }
+
+      function render() {
+        const view = currentView()
+        const mode = currentMode()
+        for (const level of M.order) {
+          $('stage-' + level).innerHTML = IranMapCompare.renderSvg(catalogsOf(level), {
+            mode,
+            viewBox: boxString(state.box),
+            showWater: $('water').checked,
+            showIslands: $('islands').checked,
+            showLabels: $('labels').checked && mode === 'province',
+            showCapitals: $('capitals').checked,
+            overlayId: $('overlay').checked ? 'full-outline' : undefined,
+            defineOverlay: level === 'full' && $('overlay').checked,
+          })
+        }
+        applySelection()
+        renderSizes()
+        $('zoom').textContent = `zoom ×${(1000 / state.box[2]).toFixed(1)}`
+        void view
+      }
+
+      function setViewBoxes() {
+        for (const svg of document.querySelectorAll('.stage svg')) svg.setAttribute('viewBox', boxString(state.box))
+        $('zoom').textContent = `zoom ×${(1000 / state.box[2]).toFixed(1)}`
+      }
+
+      function chooseView() {
+        state.home = M.views
+          .find((v) => v.id === $('view').value)
+          .viewBox.split(' ')
+          .map(Number)
+        state.box = state.home.slice()
+        render()
+      }
+
+      // Selection: recolor the selected area in every panel without re-rendering.
+      const SEL = '#f2a33a'
+      function clearSelection() {
+        for (const el of document.querySelectorAll('[data-sel-fill]')) {
+          el.setAttribute('fill', el.getAttribute('data-sel-fill'))
+          el.removeAttribute('data-sel-fill')
+        }
+      }
+      function applySelection() {
+        clearSelection()
+        if (state.selected === undefined) return
+        for (const el of document.querySelectorAll('[data-area-id]')) {
+          if (el.getAttribute('data-area-id') !== state.selected) continue
+          const target = el.tagName === 'g' ? el.querySelector('path') : el
+          target.setAttribute('data-sel-fill', target.getAttribute('fill'))
+          target.setAttribute('fill', SEL)
+        }
+      }
+
+      // Synced wheel zoom and drag pan.
+      let drag
+      document.addEventListener(
+        'wheel',
+        (event) => {
+          const stage = event.target.closest && event.target.closest('.stage')
+          if (!stage) return
+          event.preventDefault()
+          const rect = stage.getBoundingClientRect()
+          const px = state.box[0] + ((event.clientX - rect.left) / rect.width) * state.box[2]
+          const py = state.box[1] + ((event.clientY - rect.top) / rect.height) * state.box[3]
+          const factor = event.deltaY < 0 ? 1 / 1.2 : 1.2
+          const w = Math.min(1000, Math.max(0.5, state.box[2] * factor))
+          const k = w / state.box[2]
+          state.box = [px - (px - state.box[0]) * k, py - (py - state.box[1]) * k, w, state.box[3] * k]
+          setViewBoxes()
+        },
+        { passive: false },
+      )
+      document.addEventListener('pointerdown', (event) => {
+        const stage = event.target.closest && event.target.closest('.stage')
+        if (!stage) return
+        drag = {
+          x: event.clientX,
+          y: event.clientY,
+          box: state.box.slice(),
+          rect: stage.getBoundingClientRect(),
+          moved: false,
+          target: event.target,
+        }
+        stage.setPointerCapture(event.pointerId)
+        stage.classList.add('dragging')
+      })
+      document.addEventListener('pointermove', (event) => {
+        if (!drag) return
+        const dx = event.clientX - drag.x
+        const dy = event.clientY - drag.y
+        if (Math.abs(dx) + Math.abs(dy) > 3) drag.moved = true
+        if (!drag.moved) return
+        state.box = [
+          drag.box[0] - (dx / drag.rect.width) * drag.box[2],
+          drag.box[1] - (dy / drag.rect.width) * drag.box[2],
+          drag.box[2],
+          drag.box[3],
+        ]
+        setViewBoxes()
+      })
+      document.addEventListener('pointerup', (event) => {
+        if (!drag) return
+        for (const stage of document.querySelectorAll('.stage')) stage.classList.remove('dragging')
+        if (!drag.moved) {
+          const hit = drag.target.closest && drag.target.closest('[data-area-id]')
+          const panel = drag.target.closest('figure')
+          const level = panel ? panel.querySelector('.stage').id.replace('stage-', '') : ''
+          if (hit) {
+            const id = hit.getAttribute('data-area-id')
+            const island = hit.getAttribute('data-island-id')
+            state.selected = state.selected === id ? undefined : id
+            applySelection()
+            $('info').innerHTML =
+              state.selected === undefined
+                ? 'Selection cleared.'
+                : `Selected <b>${id}</b>${island ? ` (via island <b>${island}</b>)` : ''} by clicking in the <b>${NAMES[level]}</b> panel: hit target works.`
+          } else if (state.selected !== undefined) {
+            state.selected = undefined
+            applySelection()
+            $('info').textContent = 'Selection cleared.'
+          }
+        }
+        drag = undefined
+      })
+
+      $('view').addEventListener('change', chooseView)
+      for (const id of ['mode', 'water', 'islands', 'labels', 'capitals', 'overlay'])
+        $(id).addEventListener('change', render)
+      $('reset').addEventListener('click', () => {
+        state.box = state.home.slice()
+        setViewBoxes()
+      })
+      renderTable()
+      chooseView()
+    </script>
+  </body>
+</html>

@@ -4,7 +4,7 @@ import prettierRecommended from 'eslint-plugin-prettier/recommended'
 import globals from 'globals'
 
 export default tseslint.config(
-  { ignores: ['dist', 'node_modules', 'src/data'] },
+  { ignores: ['dist', 'node_modules', 'src/data', '.lite-compare'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   prettierRecommended,

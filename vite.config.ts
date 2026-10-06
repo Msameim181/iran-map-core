@@ -10,6 +10,18 @@ const entries = {
   water: 'src/water.ts',
   'capitals/provinces': 'src/capitals/provinces.ts',
   'capitals/counties': 'src/capitals/counties.ts',
+  'provinces-standard': 'src/provinces-standard.ts',
+  'counties-standard': 'src/counties-standard.ts',
+  'geography-standard': 'src/geography-standard.ts',
+  standard: 'src/standard.ts',
+  'provinces-lite': 'src/provinces-lite.ts',
+  'counties-lite': 'src/counties-lite.ts',
+  'geography-lite': 'src/geography-lite.ts',
+  lite: 'src/lite.ts',
+  'provinces-mini': 'src/provinces-mini.ts',
+  'counties-mini': 'src/counties-mini.ts',
+  'geography-mini': 'src/geography-mini.ts',
+  mini: 'src/mini.ts',
 }
 
 export default defineConfig({

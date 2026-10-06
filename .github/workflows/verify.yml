@@ -34,6 +34,9 @@ jobs:
         run: |
           mkdir -p package
           npm pack --ignore-scripts --pack-destination package
+      - name: Dry-run the publish command
+        # A bare "package/x.tgz" is parsed by npm as a GitHub shorthand, so the path must start with ./
+        run: npm publish ./package/*.tgz --dry-run --registry https://npm.pkg.github.com
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: package

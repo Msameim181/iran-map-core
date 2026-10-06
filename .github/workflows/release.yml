@@ -76,7 +76,7 @@ jobs:
           if npm view "${name}@${VERSION}" version --registry https://npm.pkg.github.com >/dev/null 2>&1; then
             echo "${name}@${VERSION} is already published to GitHub Packages; skipping"
           else
-            npm publish package/*.tgz --tag "${DIST_TAG}" --registry https://npm.pkg.github.com
+            npm publish ./package/*.tgz --tag "${DIST_TAG}" --registry https://npm.pkg.github.com
           fi
 
   github-release:
@@ -137,5 +137,5 @@ jobs:
           if npm view "${name}@${VERSION}" version --registry https://registry.npmjs.org >/dev/null 2>&1; then
             echo "${name}@${VERSION} is already on npmjs; skipping"
           else
-            npm publish package/*.tgz --access public --tag "${DIST_TAG}" --registry https://registry.npmjs.org
+            npm publish ./package/*.tgz --access public --tag "${DIST_TAG}" --registry https://registry.npmjs.org
           fi

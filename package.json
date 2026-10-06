@@ -1,0 +1,162 @@
+{
+  "name": "@msameim181/iran-map-core",
+  "version": "0.1.0",
+  "description": "Framework-free data, types and geometry/model builders for interactive maps of Iran",
+  "keywords": [
+    "map",
+    "iran",
+    "iran-map",
+    "svg",
+    "geojson",
+    "provinces",
+    "counties"
+  ],
+  "author": "Sima Mojtahedi",
+  "license": "MIT",
+  "homepage": "https://github.com/Msameim181/iran-map-core#readme",
+  "bugs": {
+    "url": "https://github.com/Msameim181/iran-map-core/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Msameim181/iran-map-core.git"
+  },
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "main": "./dist/cjs/index.cjs",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.cts",
+        "default": "./dist/cjs/index.cjs"
+      }
+    },
+    "./full": {
+      "import": {
+        "types": "./dist/types/full.d.ts",
+        "default": "./dist/esm/full.js"
+      },
+      "require": {
+        "types": "./dist/cjs/full.d.cts",
+        "default": "./dist/cjs/full.cjs"
+      }
+    },
+    "./provinces": {
+      "import": {
+        "types": "./dist/types/provinces.d.ts",
+        "default": "./dist/esm/provinces.js"
+      },
+      "require": {
+        "types": "./dist/cjs/provinces.d.cts",
+        "default": "./dist/cjs/provinces.cjs"
+      }
+    },
+    "./counties": {
+      "import": {
+        "types": "./dist/types/counties.d.ts",
+        "default": "./dist/esm/counties.js"
+      },
+      "require": {
+        "types": "./dist/cjs/counties.d.cts",
+        "default": "./dist/cjs/counties.cjs"
+      }
+    },
+    "./geography": {
+      "import": {
+        "types": "./dist/types/geography.d.ts",
+        "default": "./dist/esm/geography.js"
+      },
+      "require": {
+        "types": "./dist/cjs/geography.d.cts",
+        "default": "./dist/cjs/geography.cjs"
+      }
+    },
+    "./islands": {
+      "import": {
+        "types": "./dist/types/islands.d.ts",
+        "default": "./dist/esm/islands.js"
+      },
+      "require": {
+        "types": "./dist/cjs/islands.d.cts",
+        "default": "./dist/cjs/islands.cjs"
+      }
+    },
+    "./water": {
+      "import": {
+        "types": "./dist/types/water.d.ts",
+        "default": "./dist/esm/water.js"
+      },
+      "require": {
+        "types": "./dist/cjs/water.d.cts",
+        "default": "./dist/cjs/water.cjs"
+      }
+    },
+    "./capitals/provinces": {
+      "import": {
+        "types": "./dist/types/capitals/provinces.d.ts",
+        "default": "./dist/esm/capitals/provinces.js"
+      },
+      "require": {
+        "types": "./dist/cjs/capitals/provinces.d.cts",
+        "default": "./dist/cjs/capitals/provinces.cjs"
+      }
+    },
+    "./capitals/counties": {
+      "import": {
+        "types": "./dist/types/capitals/counties.d.ts",
+        "default": "./dist/esm/capitals/counties.js"
+      },
+      "require": {
+        "types": "./dist/cjs/capitals/counties.d.cts",
+        "default": "./dist/cjs/capitals/counties.cjs"
+      }
+    },
+    "./styles.css": "./dist/styles.css",
+    "./iran-map.css": "./dist/iran-map.css",
+    "./score-bands.css": "./dist/score-bands.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "scripts": {
+    "build": "npm run clean && vite build && npm run build:types && npm run build:styles",
+    "build:types": "tsc -p tsconfig.build.json && node scripts/build-types.js",
+    "build:styles": "node scripts/copy-styles.js",
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepack": "npm run build"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.4",
+    "eslint": "^10.12.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.6",
+    "globals": "^17.13.0",
+    "polygon-clipping": "^0.15.7",
+    "prettier": "^3.9.9",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.1",
+    "vite": "^8.3.3",
+    "vitest": "^5.0.3"
+  }
+}

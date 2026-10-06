@@ -16,7 +16,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['scripts/**/*.{js,cjs}', '*.config.{js,ts}'],
+    files: ['scripts/**/*.{js,cjs,mjs}', '*.config.{js,ts}'],
     languageOptions: { globals: { ...globals.node } },
     rules: { '@typescript-eslint/no-require-imports': 'off', 'no-console': 'off' },
   },

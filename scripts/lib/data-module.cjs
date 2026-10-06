@@ -2,8 +2,8 @@ const fs = require('fs')
 const path = require('path')
 
 /** Writes one generated catalog module: banner + type import + `// prettier-ignore` + a single JSON array export. */
-const writeDataModule = ({ file, banner, typeName, exportName, value }) => {
-  const content = `${banner}import type { ${typeName} } from '../interfaces.js'\n\n// prettier-ignore\nexport const ${exportName}: ${typeName}[] = ${JSON.stringify(
+const writeDataModule = ({ file, banner, typeName, exportName, value, typeImport = '../interfaces.js' }) => {
+  const content = `${banner}import type { ${typeName} } from '${typeImport}'\n\n// prettier-ignore\nexport const ${exportName}: ${typeName}[] = ${JSON.stringify(
     value,
   )}\n`
   fs.mkdirSync(path.dirname(file), { recursive: true })
